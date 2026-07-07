@@ -1,0 +1,23 @@
+{
+  "name": "codebridge",
+  "version": "1.0.0",
+  "description": "CodeBridge 学習IDE — 日本語でC言語を学ぶ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev:server": "node server.js",
+    "dev:client": "npm run dev --prefix frontend",
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build --prefix frontend",
+    "test": "node test-convert.mjs && node test-regression.mjs && node test-run.mjs",
+    "check": "npm test && node scripts/check-syntax.mjs && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

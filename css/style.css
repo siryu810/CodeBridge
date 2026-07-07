@@ -1,0 +1,722 @@
+body{
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px 20px 24px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.app-header-row{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.btn-back-home{
+    flex-shrink: 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #d4d4d4;
+    background: #2d2d2d;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-back-home:hover{
+    background: #3a3a3a;
+}
+
+.is-hidden{
+    display: none !important;
+}
+
+/* ========== ホーム画面 ========== */
+.home-view{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.home-hero{
+    padding: 20px 22px;
+}
+
+.home-hero-title{
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    color: #e8e8e8;
+}
+
+.home-hero-text{
+    margin: 0 0 12px;
+    line-height: 1.7;
+    color: #b8bcc4;
+    font-size: 14px;
+}
+
+.home-hero-text strong{
+    color: #4fc1ff;
+    font-weight: 600;
+}
+
+.home-features{
+    margin: 0 0 12px;
+    padding-left: 1.2em;
+    color: #9da3b0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.home-future-note{
+    margin: 0;
+    font-size: 12px;
+    color: #6e7681;
+}
+
+.home-actions{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 14px;
+}
+
+.home-section{
+    padding: 16px 18px;
+}
+
+.home-section-title{
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+.home-section-desc{
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #9da3b0;
+    line-height: 1.5;
+}
+
+.home-primary-btn{
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #0e639c;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 220px;
+}
+
+.home-primary-btn:hover{
+    background: #1177bb;
+}
+
+.home-sample-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.sample-card{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
+    text-align: left;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    color: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.sample-card:hover{
+    border-color: rgba(79, 193, 255, 0.5);
+    background: rgba(79, 193, 255, 0.06);
+}
+
+.sample-card-title{
+    font-weight: 600;
+    font-size: 14px;
+    color: #dcdcaa;
+}
+
+.sample-card-desc{
+    font-size: 12px;
+    color: #9da3b0;
+}
+
+.home-recent{
+    margin-bottom: 8px;
+}
+
+.recent-list{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recent-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.recent-item:hover{
+    border-color: rgba(79, 193, 255, 0.4);
+}
+
+.recent-title{
+    font-size: 14px;
+    color: #d4d4d4;
+}
+
+.recent-meta{
+    font-size: 12px;
+    color: #858585;
+    flex-shrink: 0;
+}
+
+.home-empty{
+    margin: 0;
+    font-size: 13px;
+    color: #9da3b0;
+}
+
+.editor-view{
+    margin-top: 0;
+}
+
+@media (max-width: 768px){
+    .home-actions{
+        grid-template-columns: 1fr;
+    }
+}
+
+.app-header h1{
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.subtitle{
+    margin: 6px 0 0;
+    color: #9da3b0;
+    font-size: 14px;
+}
+
+/* ツールバー */
+.toolbar{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: #252526;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+.sample-select{
+    flex: 1;
+    min-width: 180px;
+    max-width: 360px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 13px;
+}
+
+/* 学習モード切替 */
+.mode-switch{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+}
+
+.mode-option{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.workspace{
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+    margin-top: 14px;
+    min-height: 340px;
+}
+
+.panel-c-output .output{
+    min-height: 300px;
+}
+
+/* 実行パネル行 */
+.run-panels,
+.learning-panels{
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.run-panels .panel,
+.learning-panels .panel{
+    flex: 1;
+    min-width: 0;
+}
+
+.stdin-panel{
+    margin-top: 14px;
+}
+
+.stdin-panel.is-hidden{
+    display: none;
+}
+
+.stdin-hint{
+    margin: 0;
+    padding: 8px 14px 0;
+    font-size: 13px;
+    color: #9da3b0;
+}
+
+.run-stdin{
+    display: block;
+    width: calc(100% - 28px);
+    margin: 8px 14px 14px;
+    min-height: 64px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.run-output,
+.run-console,
+.run-error,
+.run-input-wait{
+    margin: 0;
+    padding: 14px;
+    min-height: 120px;
+    max-height: 240px;
+    overflow: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.run-output{
+    background: #1a2e1a;
+    color: #b5e8b5;
+}
+
+.run-error{
+    background: #2e1a1a;
+    color: #f0a8a8;
+}
+
+.run-input-wait{
+    background: #2a2218;
+    color: #f0c878;
+}
+
+/* 学習パネル */
+.learning-log{
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    max-height: 280px;
+    overflow: auto;
+}
+
+.learning-empty{
+    color: #9da3b0;
+    font-size: 14px;
+    margin: 0;
+}
+
+.learning-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.learning-keyword{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.learning-text{
+    color: #9cdcfe;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.app-footer{
+    margin-top: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #858585;
+    background: #252526;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.dict-scroll{
+    padding: 12px 14px;
+    overflow: auto;
+    max-height: 280px;
+}
+
+.dict-hint{
+    padding: 0 14px 12px;
+    color: #9da3b0;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* 学習用コードエディタ（VSCode風：行番号 + 等幅入力） */
+.panel-editor{
+    min-height: 380px;
+}
+
+.code-editor{
+    display: flex;
+    flex: 1;
+    min-height: 320px;
+    overflow: hidden;
+    background: #1e1e1e;
+}
+
+.code-editor-gutter{
+    flex: 0 0 44px;
+    padding: 14px 8px 14px 12px;
+    text-align: right;
+    user-select: none;
+    overflow: hidden;
+    color: #858585;
+    background: #1e1e1e;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.code-editor-input{
+    flex: 1;
+    width: 100%;
+    min-height: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    caret-color: #aeafad;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 14px 14px 14px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    tab-size: 4;
+}
+
+/* VSCode風パネル共通スタイル */
+.panel{
+    flex: 1;
+    min-width: 0;
+    background: #252526;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* パネル上部ラベル */
+.panel-header{
+    padding: 10px 14px;
+    background: #2d2d2d;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 13px;
+    color: #cccccc;
+    font-weight: 600;
+}
+
+/* パネル見出し + 実行ボタンを横並び */
+.panel-header-with-action{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.run-button{
+    flex-shrink: 0;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #0e639c;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.run-button:hover{
+    background: #1177bb;
+}
+
+.run-button:disabled{
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* サーバー通信・実行時入力 */
+.run-result-panel{
+    margin-top: 14px;
+}
+
+.run-stdin-hint{
+    margin: 0;
+    padding: 8px 14px 0;
+    font-size: 13px;
+    color: #9da3b0;
+    line-height: 1.5;
+}
+
+.run-stdin{
+    display: block;
+    width: calc(100% - 28px);
+    margin: 8px 14px 0;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    box-sizing: border-box;
+}
+
+.run-stdin:focus{
+    outline: none;
+    border-color: rgba(14, 99, 156, 0.8);
+}
+
+.run-result-header{
+    margin-top: 12px;
+}
+
+.run-result{
+    margin: 0;
+    padding: 14px;
+    min-height: 100px;
+    overflow: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre-wrap;
+}
+
+/* 変換後コードの表示欄（等幅フォントで読みやすく） */
+.output{
+    margin: 0;
+    padding: 14px 14px;
+    flex: 1;
+    height: auto;
+    min-height: 220px;
+    overflow: auto;
+    background: transparent;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre;
+}
+
+/* 変換ログパネルは全幅で下段に表示 */
+.mapping-panel{
+    margin-top: 14px;
+}
+
+.mapping-log{
+    padding: 12px 14px 14px;
+}
+
+.mapping-empty{
+    color: #9da3b0;
+    font-size: 14px;
+}
+
+.mapping-list{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+}
+
+.mapping-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    line-height: 1.5;
+}
+
+.mapping-main{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+}
+
+.mapping-desc{
+    color: #9cdcfe;
+    margin-left: 8px;
+}
+
+/* 命令の意味説明パネル */
+.meaning-panel{
+    margin-top: 14px;
+}
+
+.meaning-log{
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+}
+
+.meaning-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.meaning-keyword{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.meaning-text{
+    color: #9cdcfe;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* 常時表示の辞書パネル（学習者が迷わないためのUI） */
+.dict-section{
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dict-header{
+    padding: 10px 14px;
+    background: #2d2d2d;
+    color: #cccccc;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.dict-scroll{
+    padding: 12px 14px 0;
+    overflow: auto;
+    max-height: 320px; /* スクロール可能：語彙が増えても崩れない */
+}
+
+.dict-category{
+    margin: 12px 0 8px;
+    padding-bottom: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4fc1ff;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid rgba(79, 193, 255, 0.25);
+}
+
+.dict-category:first-child{
+    margin-top: 0;
+}
+
+.dict-hint{
+    padding: 10px 14px 0;
+    color: #9da3b0;
+    font-size: 13px;
+}
+
+.dict-card{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0 0 10px;
+}
+
+.dict-card.used{
+    background: rgba(79, 193, 255, 0.08);
+    border-color: rgba(79, 193, 255, 0.65);
+}
+
+.dict-main{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+}
+
+.dict-desc{
+    color: #9cdcfe;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+@media (max-width: 900px){
+    .workspace,
+    .run-panels,
+    .learning-panels{ flex-direction: column; }
+    .output{ min-height: 200px; }
+    .code-editor{ min-height: 240px; }
+}

@@ -1,0 +1,1505 @@
+html,
+body,
+#root{
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+body.body--ide{
+    padding: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+}
+
+.app-root--home{
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 20px 24px;
+    box-sizing: border-box;
+}
+
+.app-root--ide{
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    min-height: 0;
+}
+
+.app-header-row{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.server-status-banner{
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.server-status-ok{
+    background: rgba(46, 160, 67, 0.15);
+    border: 1px solid rgba(46, 160, 67, 0.45);
+    color: #7ee787;
+}
+
+.server-status-error{
+    background: rgba(248, 81, 73, 0.12);
+    border: 1px solid rgba(248, 81, 73, 0.45);
+    color: #ffaba8;
+}
+
+.server-status-error-body{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+}
+
+.server-status-text{
+    font-weight: 600;
+}
+
+.server-status-hint{
+    font-size: 13px;
+    color: #e8b4b2;
+}
+
+.btn-back-home{
+    flex-shrink: 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #d4d4d4;
+    background: #2d2d2d;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-back-home:hover{
+    background: #3a3a3a;
+}
+
+.mode-option-active {
+    color: #4fc1ff;
+    font-weight: 600;
+}
+
+
+/* ========== ホーム画面 ========== */
+.home-view{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.home-hero{
+    padding: 20px 22px;
+}
+
+.home-hero-title{
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    color: #e8e8e8;
+}
+
+.home-hero-text{
+    margin: 0 0 12px;
+    line-height: 1.7;
+    color: #b8bcc4;
+    font-size: 14px;
+}
+
+.home-hero-text strong{
+    color: #4fc1ff;
+    font-weight: 600;
+}
+
+.home-features{
+    margin: 0 0 12px;
+    padding-left: 1.2em;
+    color: #9da3b0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.home-future-note{
+    margin: 0;
+    font-size: 12px;
+    color: #6e7681;
+}
+
+.home-actions{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 14px;
+}
+
+.home-section{
+    padding: 16px 18px;
+}
+
+.home-section-title{
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+.home-section-desc{
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #9da3b0;
+    line-height: 1.5;
+}
+
+.home-primary-btn{
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #0e639c;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 220px;
+}
+
+.home-primary-btn:hover{
+    background: #1177bb;
+}
+
+.home-sample-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.sample-card{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
+    text-align: left;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    color: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.sample-card:hover{
+    border-color: rgba(79, 193, 255, 0.5);
+    background: rgba(79, 193, 255, 0.06);
+}
+
+.sample-card-title{
+    font-weight: 600;
+    font-size: 14px;
+    color: #dcdcaa;
+}
+
+.sample-card-desc{
+    font-size: 12px;
+    color: #9da3b0;
+}
+
+.home-recent{
+    margin-bottom: 8px;
+}
+
+.recent-list{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recent-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.recent-item:hover{
+    border-color: rgba(79, 193, 255, 0.4);
+}
+
+.recent-title{
+    font-size: 14px;
+    color: #d4d4d4;
+}
+
+.recent-meta{
+    font-size: 12px;
+    color: #858585;
+    flex-shrink: 0;
+}
+
+.home-empty{
+    margin: 0;
+    font-size: 13px;
+    color: #9da3b0;
+}
+
+.editor-view{
+    margin-top: 0;
+}
+
+/* ========== IDE 固定レイアウト（エディタ画面） ========== */
+.ide-shell{
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+}
+
+.ide-toolbar{
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 12px;
+    background: #252526;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ide-main,
+.ide-center,
+.ide-workspace,
+.ide-pane,
+.editor-pane,
+.preview-pane{
+    min-height: 0;
+    overflow: hidden;
+}
+
+.ide-toolbar-left,
+.ide-toolbar-center,
+.ide-toolbar-right{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ide-toolbar-left{
+    flex-shrink: 0;
+}
+
+.ide-toolbar-center{
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ide-toolbar-right{
+    flex-shrink: 0;
+}
+
+.ide-toolbar-title{
+    font-size: 13px;
+    font-weight: 600;
+    color: #cccccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
+.ide-toolbar .btn-back-home{
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.ide-toolbar .sample-select{
+    flex: 0 1 280px;
+    min-width: 160px;
+    max-width: 320px;
+    margin: 0;
+}
+
+.ide-toolbar .mode-switch{
+    gap: 8px 12px;
+}
+
+.ide-toolbar .mode-option{
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.server-status-indicator{
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.server-status-indicator.server-status-ok{
+    color: #7ee787;
+    border-color: rgba(46, 160, 67, 0.45);
+    background: rgba(46, 160, 67, 0.12);
+}
+
+.server-status-indicator.server-status-error{
+    color: #ffaba8;
+    border-color: rgba(248, 81, 73, 0.45);
+    background: rgba(248, 81, 73, 0.12);
+}
+
+.server-status-indicator.server-status-checking{
+    color: #9da3b0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ide-main{
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.ide-center{
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ide-workspace{
+    flex: 1 1 auto;
+    flex-shrink: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+    background: #1e1e1e;
+}
+
+.ide-workspace--editor-only .ide-pane--editor{
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+.ide-pane--editor{
+    flex: 1 1 calc(100% - var(--preview-width, 30%));
+    min-width: 0;
+}
+
+.ide-pane--preview{
+    flex: 0 0 var(--preview-width, 30%);
+    min-width: 140px;
+    max-width: 50%;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ide-splitter{
+    flex: 0 0 4px;
+    cursor: col-resize;
+    background: rgba(255, 255, 255, 0.06);
+    transition: background 0.15s;
+}
+
+.ide-splitter:hover,
+.body--resizing .ide-splitter{
+    background: #0e639c;
+}
+
+.ide-pane{
+    min-height: 0;
+    border-radius: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ide-pane.panel-editor,
+.ide-pane.panel-c-output{
+    min-height: 0;
+}
+
+.ide-panel-toggle{
+    flex-shrink: 0;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9da3b0;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.ide-panel-toggle:hover{
+    color: #d4d4d4;
+    border-color: rgba(79, 193, 255, 0.4);
+    background: rgba(79, 193, 255, 0.08);
+}
+
+.ide-panel-toggle--close{
+    color: #858585;
+}
+
+.ide-toolbar-btn{
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9da3b0;
+    background: #2d2d2d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.ide-toolbar-btn:hover{
+    color: #d4d4d4;
+    background: #3a3a3a;
+}
+
+.ide-toolbar-btn.is-active{
+    color: #4fc1ff;
+    border-color: rgba(79, 193, 255, 0.45);
+    background: rgba(79, 193, 255, 0.1);
+}
+
+body.body--resizing{
+    cursor: col-resize;
+    user-select: none;
+}
+
+.ide-pane .code-editor{
+    flex: 1;
+    min-height: 0;
+}
+
+.ide-pane .output{
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+}
+
+.ide-bottom{
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #252526;
+    box-sizing: border-box;
+}
+
+.console-panel{
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 220px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.ide-console-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.ide-console-error-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffaba8;
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid rgba(248, 81, 73, 0.4);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.ide-console-error-link:hover{
+    background: rgba(248, 81, 73, 0.25);
+}
+
+.console-output{
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.runtime-input-panel{
+    flex: 0 0 auto;
+    max-height: 96px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #2a2a2a;
+    box-sizing: border-box;
+}
+
+.runtime-input-panel .runtime-input-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #cccccc;
+    background: #2d2d2d;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
+
+.runtime-input-hint-inline{
+    font-size: 11px;
+    font-weight: 400;
+    color: #858585;
+}
+
+.runtime-input-panel textarea{
+    display: block;
+    width: calc(100% - 24px);
+    margin: 4px 12px 6px;
+    height: 44px;
+    max-height: 70px;
+    min-height: 44px;
+    padding: 6px 10px;
+    resize: vertical;
+    overflow: auto;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* IDE 内ではレガシー min-height を無効化（flex で高さ配分） */
+.ide-shell .panel,
+.ide-shell .panel-editor,
+.ide-shell .panel-c-output,
+.ide-shell .editor-pane,
+.ide-shell .preview-pane,
+.ide-shell .code-editor,
+.ide-shell .code-editor-input,
+.ide-shell .panel-c-output .output,
+.ide-shell .ide-pane .output{
+    min-height: 0;
+}
+
+.ide-shell .run-output.run-console,
+.ide-shell .console-output{
+    min-height: 0;
+    max-height: none;
+}
+
+.ide-rail{
+    flex-shrink: 0;
+    width: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    background: #252526;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ide-rail-btn{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 6px 4px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #9da3b0;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.ide-rail-btn:hover{
+    color: #d4d4d4;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ide-rail-btn.is-active{
+    color: #4fc1ff;
+    background: rgba(79, 193, 255, 0.12);
+    border-color: rgba(79, 193, 255, 0.35);
+}
+
+.ide-rail-badge{
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f85149;
+    box-shadow: 0 0 0 2px #252526;
+}
+
+.ide-slide-panel{
+    flex-shrink: 0;
+    width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #252526;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    transition: width 0.2s ease;
+}
+
+.ide-slide-panel.is-open{
+    width: min(360px, 42vw);
+}
+
+.ide-slide-panel-header{
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #2d2d2d;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ide-slide-panel-title{
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #cccccc;
+}
+
+.ide-slide-panel-close{
+    border: none;
+    background: transparent;
+    color: #9da3b0;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.ide-slide-panel-close:hover{
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ide-slide-panel-body{
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.ide-slide-error{
+    margin: 0;
+    padding: 14px;
+    min-height: 100%;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.learning-log--fill,
+.dict-scroll--fill{
+    max-height: none;
+    height: auto;
+    padding: 12px 14px 14px;
+}
+
+@media (max-width: 768px){
+    .home-actions{
+        grid-template-columns: 1fr;
+    }
+}
+
+.app-header h1{
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.subtitle{
+    margin: 6px 0 0;
+    color: #9da3b0;
+    font-size: 14px;
+}
+
+/* ツールバー */
+.toolbar{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: #252526;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+.sample-select{
+    flex: 1;
+    min-width: 180px;
+    max-width: 360px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 13px;
+}
+
+/* 学習モード切替 */
+.mode-switch{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+}
+
+.mode-option{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.workspace{
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+    margin-top: 14px;
+    min-height: 340px;
+}
+
+.panel-c-output .output{
+    min-height: 300px;
+}
+
+/* 実行パネル行 */
+.run-panels,
+.learning-panels{
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.run-panels .panel,
+.learning-panels .panel{
+    flex: 1;
+    min-width: 0;
+}
+
+.stdin-panel{
+    margin-top: 14px;
+}
+
+.stdin-panel.is-hidden{
+    display: none;
+}
+
+.stdin-hint{
+    margin: 0;
+    padding: 8px 14px 0;
+    font-size: 13px;
+    color: #9da3b0;
+}
+
+.run-stdin{
+    display: block;
+    width: calc(100% - 28px);
+    margin: 8px 14px 14px;
+    min-height: 64px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.run-output,
+.run-console,
+.run-error,
+.run-input-wait{
+    margin: 0;
+    padding: 14px;
+    min-height: 120px;
+    max-height: 240px;
+    overflow: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.run-output{
+    background: #1a2e1a;
+    color: #b5e8b5;
+}
+
+.run-error{
+    background: #2e1a1a;
+    color: #f0a8a8;
+}
+
+.run-input-wait{
+    background: #2a2218;
+    color: #f0c878;
+}
+
+/* 学習パネル */
+.learning-log{
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    max-height: 280px;
+    overflow: auto;
+}
+
+.learning-empty{
+    color: #9da3b0;
+    font-size: 14px;
+    margin: 0;
+}
+
+.learning-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.learning-keyword{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.learning-text{
+    color: #9cdcfe;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.app-footer{
+    margin-top: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #858585;
+    background: #252526;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.dict-scroll{
+    padding: 12px 14px;
+    overflow: auto;
+    max-height: 280px;
+}
+
+.dict-hint{
+    padding: 0 14px 12px;
+    color: #9da3b0;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* 学習用コードエディタ（VSCode風：行番号 + 等幅入力） */
+.panel-editor{
+    min-height: 380px;
+}
+
+.code-editor{
+    display: flex;
+    flex: 1;
+    min-height: 320px;
+    overflow: hidden;
+    background: #1e1e1e;
+}
+
+.code-editor-gutter{
+    flex: 0 0 44px;
+    padding: 14px 8px 14px 12px;
+    text-align: right;
+    user-select: none;
+    overflow: hidden;
+    color: #858585;
+    background: #1e1e1e;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.code-editor-input{
+    flex: 1;
+    width: 100%;
+    min-height: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    caret-color: #aeafad;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 14px 14px 14px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    tab-size: 4;
+}
+
+/* VSCode風パネル共通スタイル */
+.panel{
+    flex: 1;
+    min-width: 0;
+    background: #252526;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* パネル上部ラベル */
+.panel-header{
+    padding: 8px 12px;
+    background: #2d2d2d;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 12px;
+    color: #cccccc;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* パネル見出し + 実行ボタンを横並び */
+.panel-header-with-action{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.run-button{
+    flex-shrink: 0;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #0e639c;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.run-button:hover{
+    background: #1177bb;
+}
+
+.run-button:disabled{
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* サーバー通信・実行時入力 */
+.run-result-panel{
+    margin-top: 14px;
+}
+
+.run-stdin-hint{
+    margin: 0;
+    padding: 8px 14px 0;
+    font-size: 13px;
+    color: #9da3b0;
+    line-height: 1.5;
+}
+
+.run-stdin{
+    display: block;
+    width: calc(100% - 28px);
+    margin: 8px 14px 0;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    box-sizing: border-box;
+}
+
+.run-stdin:focus{
+    outline: none;
+    border-color: rgba(14, 99, 156, 0.8);
+}
+
+.run-result-header{
+    margin-top: 12px;
+}
+
+.run-result{
+    margin: 0;
+    padding: 14px;
+    min-height: 100px;
+    overflow: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre-wrap;
+}
+
+/* 変換後コードの表示欄（等幅フォントで読みやすく） */
+.output{
+    margin: 0;
+    padding: 14px 14px;
+    flex: 1;
+    height: auto;
+    min-height: 220px;
+    overflow: auto;
+    background: transparent;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre;
+}
+
+/* 変換ログパネルは全幅で下段に表示 */
+.mapping-panel{
+    margin-top: 14px;
+}
+
+.mapping-log{
+    padding: 12px 14px 14px;
+}
+
+.mapping-empty{
+    color: #9da3b0;
+    font-size: 14px;
+}
+
+.mapping-list{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+}
+
+.mapping-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    line-height: 1.5;
+}
+
+.mapping-main{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+}
+
+.mapping-desc{
+    color: #9cdcfe;
+    margin-left: 8px;
+}
+
+/* 命令の意味説明パネル */
+.meaning-panel{
+    margin-top: 14px;
+}
+
+.meaning-log{
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+}
+
+.meaning-item{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.meaning-keyword{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.meaning-text{
+    color: #9cdcfe;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* 常時表示の辞書パネル（学習者が迷わないためのUI） */
+.dict-section{
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dict-header{
+    padding: 10px 14px;
+    background: #2d2d2d;
+    color: #cccccc;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.dict-scroll{
+    padding: 12px 14px 0;
+    overflow: auto;
+    max-height: 320px; /* スクロール可能：語彙が増えても崩れない */
+}
+
+.dict-category{
+    margin: 12px 0 8px;
+    padding-bottom: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4fc1ff;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid rgba(79, 193, 255, 0.25);
+}
+
+.dict-category:first-child{
+    margin-top: 0;
+}
+
+.dict-hint{
+    padding: 10px 14px 0;
+    color: #9da3b0;
+    font-size: 13px;
+}
+
+.dict-card{
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0 0 10px;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+}
+
+.dict-card-clickable{
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.dict-card-clickable:hover:not(:disabled){
+    border-color: rgba(79, 193, 255, 0.45);
+    background: rgba(79, 193, 255, 0.06);
+}
+
+.dict-card:disabled{
+    cursor: default;
+}
+
+.dict-card-hint{
+    margin-top: 6px;
+    font-size: 11px;
+    color: #7a8494;
+}
+
+.learning-goals-list{
+    margin: 0;
+    padding-left: 1.4em;
+    color: #c8ccd4;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.learning-section{
+    margin-bottom: 14px;
+}
+
+.learning-section-title{
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #b8bcc4;
+}
+
+.learning-algorithm-steps{
+    margin: 0;
+    padding-left: 1.4em;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.learning-free-note{
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    color: #9da3b0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.learning-command-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.learning-command-btn{
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #1f1f1f;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.learning-command-btn:hover{
+    border-color: rgba(79, 193, 255, 0.5);
+    background: rgba(79, 193, 255, 0.08);
+}
+
+.learning-command-jp{
+    display: block;
+    font-weight: 600;
+    color: #4fc1ff;
+    margin-bottom: 4px;
+}
+
+.learning-command-c{
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: #9cdcfe;
+}
+
+.dict-modal-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.dict-modal{
+    background: #252526;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    max-width: 520px;
+    width: 100%;
+    max-height: min(85vh, 640px);
+    overflow: auto;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.dict-modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dict-modal-title{
+    margin: 0;
+    font-size: 1.15rem;
+    color: #4fc1ff;
+}
+
+.dict-modal-close{
+    border: none;
+    background: transparent;
+    color: #9da3b0;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.dict-modal-close:hover{
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.dict-modal-body{
+    margin: 0;
+    padding: 16px 18px 20px;
+}
+
+.dict-modal-row{
+    margin-bottom: 14px;
+}
+
+.dict-modal-row dt{
+    font-size: 12px;
+    font-weight: 600;
+    color: #9da3b0;
+    margin-bottom: 4px;
+}
+
+.dict-modal-row dd{
+    margin: 0;
+    color: #e8e8e8;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.dict-modal-list{
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.dict-modal-example{
+    margin-bottom: 12px;
+}
+
+.dict-modal-code{
+    margin: 0;
+    padding: 8px 10px;
+    background: #1e1e1e;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #b5e8b5;
+    overflow-x: auto;
+}
+
+.dict-modal-arrow{
+    text-align: center;
+    color: #9da3b0;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.dict-card.used{
+    background: rgba(79, 193, 255, 0.08);
+    border-color: rgba(79, 193, 255, 0.65);
+}
+
+.dict-main{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #dcdcaa;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+}
+
+.dict-desc{
+    color: #9cdcfe;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+@media (max-width: 900px){
+    .workspace,
+    .run-panels,
+    .learning-panels{ flex-direction: column; }
+    .output{ min-height: 200px; }
+    .code-editor{ min-height: 240px; }
+
+    .ide-workspace{
+        flex-direction: column;
+    }
+
+    .ide-toolbar-center{
+        justify-content: flex-start;
+    }
+
+    .ide-toolbar-title{
+        display: none;
+    }
+
+    .ide-slide-panel.is-open{
+        position: absolute;
+        top: 0;
+        right: 44px;
+        bottom: 0;
+        z-index: 20;
+        width: min(320px, calc(100vw - 44px));
+        box-shadow: -8px 0 24px rgba(0, 0, 0, 0.35);
+    }
+}

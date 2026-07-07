@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeBridge — 学習IDE</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-header-row">
+            <div>
+                <h1>CodeBridge</h1>
+                <p class="subtitle">日本語でプログラミングの考え方を学び、C言語へ橋渡しする学習IDE</p>
+            </div>
+            <button id="btnBackHome" type="button" class="btn-back-home is-hidden" aria-label="ホームへ戻る">
+                ← ホーム
+            </button>
+        </div>
+    </header>
+
+    <!-- ========== ホーム画面（起動時に表示） ========== -->
+    <main id="homeView" class="home-view">
+        <section class="home-hero panel">
+            <h2 class="home-hero-title">CodeBridge へようこそ</h2>
+            <p class="home-hero-text">
+                CodeBridge は「C言語を日本語に翻訳するツール」ではなく、
+                <strong>プログラミングの考え方を日本語で学べる学習IDE</strong> です。
+                日本語でコードを書き、C言語への変換・実行・エラーの日本語説明を通して理解を深めます。
+            </p>
+            <ul class="home-features">
+                <li>日本語命令（表示・もし・入力 など）でコードが書ける</li>
+                <li>リアルタイムで C 言語に変換され、意味も学べる</li>
+                <li>実行結果とエラーを分けて、初心者向けに表示</li>
+            </ul>
+            <p class="home-future-note">※ 将来は .c / .cb ファイルの保存・読み込みにも対応予定です。</p>
+        </section>
+
+        <div class="home-actions">
+            <section class="panel home-section">
+                <h3 class="home-section-title">新規作成</h3>
+                <p class="home-section-desc">空のエディタから、自分のコードを書き始めます。</p>
+                <button id="btnNewProject" type="button" class="home-primary-btn">＋ 新規作成</button>
+            </section>
+
+            <section class="panel home-section">
+                <h3 class="home-section-title">サンプルを開く</h3>
+                <p class="home-section-desc">題材のコードを選ぶと、エディタに読み込まれます。</p>
+                <div id="homeSampleList" class="home-sample-grid"></div>
+            </section>
+        </div>
+
+        <section class="panel home-section home-recent">
+            <h3 class="home-section-title">最近使ったコード</h3>
+            <div id="recentList" class="recent-list"></div>
+        </section>
+    </main>
+
+    <!-- ========== エディタ画面 ========== -->
+    <div id="editorView" class="editor-view is-hidden">
+        <nav class="toolbar">
+            <div class="mode-switch">
+                <label class="mode-option">
+                    <input type="radio" name="inputMode" value="jp2c" checked onchange="setInputMode('jp2c')">
+                    書く（日本語 → C）
+                </label>
+                <label class="mode-option">
+                    <input type="radio" name="inputMode" value="c2jp" onchange="setInputMode('c2jp')">
+                    読む（C → 日本語）
+                </label>
+            </div>
+            <select id="sampleSelect" class="sample-select" aria-label="サンプル集"></select>
+            <button id="runButton" type="button" class="run-button">▶ 実行</button>
+        </nav>
+
+        <div class="workspace">
+            <section class="panel panel-editor">
+                <div id="inputPanelTitle" class="panel-header">① 日本語Cエディタ</div>
+                <div class="code-editor">
+                    <div id="lineNumbers" class="code-editor-gutter" aria-hidden="true">1</div>
+                    <textarea
+                        id="inputCode"
+                        class="code-editor-input"
+                        spellcheck="false"
+                        wrap="off"
+                        placeholder='表示("Hello");&#10;もし(scoreが60以上){&#10;    表示("合格");&#10;}'></textarea>
+                </div>
+            </section>
+
+            <section class="panel panel-c-output">
+                <div id="outputPanelTitle" class="panel-header">② C言語変換結果</div>
+                <pre id="outputCode" class="output"></pre>
+            </section>
+        </div>
+
+        <section id="stdinPanel" class="panel stdin-panel is-hidden">
+            <div class="panel-header">実行時入力</div>
+            <p class="stdin-hint">「入力(...)」で読み込む値をここに入力します。複数回入力する場合は1行に1つ。</p>
+            <textarea id="runStdin" class="run-stdin" spellcheck="false" placeholder="例:&#10;1&#10;170&#10;65"></textarea>
+        </section>
+
+        <div class="run-panels">
+            <section class="panel">
+                <div class="panel-header">③ コンソール</div>
+                <pre id="runOutput" class="run-output run-console">「実行」を押すと、コンソールに出力が表示されます。</pre>
+            </section>
+            <section class="panel">
+                <div id="runErrorPanelTitle" class="panel-header">④ 日本語エラー</div>
+                <pre id="runError" class="run-error">エラーがない場合は空です。</pre>
+            </section>
+        </div>
+
+        <div class="learning-panels">
+            <section class="panel">
+                <div id="learningPanelTitle" class="panel-header">⑤ 学習モード — 使った命令の意味</div>
+                <div id="learningPanel" class="learning-log"></div>
+            </section>
+            <section class="panel">
+                <div class="panel-header">⑥ 日本語 ⇔ C言語 対応表</div>
+                <div id="dictScroll" class="dict-scroll"></div>
+                <p class="dict-hint">入力に登場した語は強調表示されます。</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/editor.js"></script>
+    <script src="js/samples.js"></script>
+    <script src="js/jp2c.js"></script>
+    <script src="js/c2jp.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/run.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            if (typeof window.initCodeBridge === "function") {
+                window.initCodeBridge();
+            }
+        });
+    </script>
+</body>
+</html>
