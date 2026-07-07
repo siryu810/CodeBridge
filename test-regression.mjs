@@ -124,6 +124,7 @@ check("package.json に check スクリプト", () => {
     if (!pkg.scripts?.check) throw new Error("npm run check がありません");
     if (!pkg.scripts?.test) throw new Error("npm test がありません");
     if (!pkg.scripts?.build) throw new Error("npm run build がありません");
+    if (!pkg.scripts?.["validate-samples"]) throw new Error("validate-samples がありません");
 });
 
 check("学習辞書データが存在する", () => {
@@ -139,11 +140,25 @@ check("全サンプルに algorithmSteps がある", () => {
     }
 });
 
-check("全サンプルに jpCode と cCode がある", () => {
+check("全サンプルに必須メタデータがある", () => {
     for (const sample of CODEBRIDGE_SAMPLES) {
-        if (!sample.jpCode?.trim()) throw new Error(`${sample.title} に jpCode がありません`);
-        if (!sample.cCode?.trim()) throw new Error(`${sample.title} に cCode がありません`);
+        if (!sample.jpCode?.trim()) throw new Error(`${sample.id}: jpCode がありません`);
+        if (!sample.cCode?.trim()) throw new Error(`${sample.id}: cCode がありません`);
+        if (!sample.category?.trim()) throw new Error(`${sample.id}: category がありません`);
+        if (sample.difficulty == null) throw new Error(`${sample.id}: difficulty がありません`);
+        if (!Array.isArray(sample.commands) || sample.commands.length === 0) {
+            throw new Error(`${sample.id}: commands がありません`);
+        }
+        if (!sample.expectedOutput || typeof sample.expectedOutput !== "object") {
+            throw new Error(`${sample.id}: expectedOutput がありません`);
+        }
     }
+});
+
+check("サンプル検証スクリプトが存在する", () => {
+    assertIncludes(read("scripts/validate-samples.mjs"), "SampleManager", "SampleManager 利用");
+    assertIncludes(read("shared/sampleManager.js"), "validateSamples", "validateSamples");
+    assertIncludes(read("shared/sampleManager.js"), "printSampleReport", "Sample Report");
 });
 
 check("エディタがモード別コードを保持する", () => {

@@ -16,6 +16,9 @@ const files = [
     "test-convert.mjs",
     "test-run.mjs",
     "test-regression.mjs",
+    "shared/sampleManager.js",
+    "scripts/validate-samples.mjs",
+    "shared/sampleSchema.js",
 ];
 
 let failed = 0;

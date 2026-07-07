@@ -16,6 +16,20 @@ const CODEBRIDGE_SAMPLES = [
         "cCode": "#include <stdio.h>\n\nint main(void) {\n    setbuf(stdout, NULL);\n\n    printf(\"Hello, CodeBridge!\\n\");\n\n    return 0;\n}",
         "algorithmSteps": [
             "文字列を画面に表示する"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [
+            "Hello, CodeBridge!"
+        ],
+        "tags": [
+            "入門",
+            "表示"
         ]
     },
     {
@@ -32,6 +46,26 @@ const CODEBRIDGE_SAMPLES = [
             "入力のお願いを画面に表示する",
             "キーボードから整数を読み込む",
             "読み込んだ値を画面に表示する"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "42を入力",
+                "stdin": "42",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [
+            "42"
+        ],
+        "tags": [
+            "入門",
+            "入力",
+            "表示"
         ]
     },
     {
@@ -54,6 +88,29 @@ const CODEBRIDGE_SAMPLES = [
             "同じ手なら「あいこ」",
             "勝ち条件に当てはまれば「勝ち」",
             "それ以外は「負け」"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "チョキ(1)",
+                "stdin": "1",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [
+            "じゃんけんゲーム",
+            "あなたの手:",
+            "CPUの手:",
+            "結果:"
+        ],
+        "tags": [
+            "分岐",
+            "乱数",
+            "入力"
         ]
     },
     {
@@ -75,6 +132,35 @@ const CODEBRIDGE_SAMPLES = [
             "計算した BMI の数値を表示する",
             "BMI の値に応じて判定を表示する",
             "BMI の目安一覧を表示する"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "1行のみ",
+                "stdin": "160",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "標準例(160cm/58.6kg)",
+                "stdin": "160\n58.6",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [
+            "BMI：",
+            "22.89",
+            "判定：普通体重",
+            "BMIの目安"
+        ],
+        "tags": [
+            "計算",
+            "小数",
+            "分岐",
+            "入力"
         ]
     },
     {
@@ -93,6 +179,25 @@ const CODEBRIDGE_SAMPLES = [
             "70点以上なら評価 B",
             "60点以上なら評価 C",
             "それ以外は評価 不可"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "80点",
+                "stdin": "80",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [
+            "評価: B"
+        ],
+        "tags": [
+            "分岐",
+            "入力"
         ]
     },
     {
@@ -110,6 +215,24 @@ const CODEBRIDGE_SAMPLES = [
             "0〜3 の乱数を得る",
             "0 なら「大吉」、1 なら「中吉」、2 なら「小吉」",
             "それ以外は「凶」"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "success"
+            }
+        ],
+        "expectedOutputIncludes": [],
+        "expectedOutputOneOf": [
+            "大吉",
+            "中吉",
+            "小吉",
+            "凶"
+        ],
+        "tags": [
+            "乱数",
+            "分岐"
         ]
     },
     {
@@ -128,6 +251,35 @@ const CODEBRIDGE_SAMPLES = [
             "答えを入力する",
             "答えが a + b と等しければ「正解!」",
             "それ以外は「不正解」"
+        ],
+        "stdinExamples": [
+            {
+                "label": "入力なし",
+                "stdin": "",
+                "expectStatus": "input_required"
+            },
+            {
+                "label": "正解(3+4=7)",
+                "stdin": "3\n4\n7",
+                "expectStatus": "success",
+                "expectedOutputIncludes": [
+                    "正解!"
+                ]
+            },
+            {
+                "label": "不正解(3+4=8)",
+                "stdin": "3\n4\n8",
+                "expectStatus": "success",
+                "expectedOutputIncludes": [
+                    "不正解"
+                ]
+            }
+        ],
+        "expectedOutputIncludes": [],
+        "tags": [
+            "入力",
+            "分岐",
+            "計算"
         ]
     }
 ];

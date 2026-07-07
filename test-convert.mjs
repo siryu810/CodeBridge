@@ -2,7 +2,6 @@
 
 import CodeBridgeJp2c from "./shared/jp2c.js";
 import CodeBridgeC2jp from "./shared/c2jp.js";
-import { CODEBRIDGE_SAMPLES } from "./shared/samples.js";
 
 const { convertJapaneseToC } = CodeBridgeJp2c;
 const { convertCToJapanese } = CodeBridgeC2jp;
@@ -265,54 +264,5 @@ try {
     console.error(`  ${err.message}`);
     failed++;
 }
-console.log("");
-
-console.log("=== サンプル一括変換 ===\n");
-for (const sample of CODEBRIDGE_SAMPLES) {
-    try {
-        const jp = sample.jpCode ?? sample.code;
-        const result = convertJapaneseToC(jp);
-        if (!result.program || !result.program.includes("int main")) {
-            throw new Error("main を含む C プログラムが生成されません");
-        }
-        if (result.warnings.length > 0) {
-            throw new Error(result.warnings.map((w) => w.messageJa).join("; "));
-        }
-        if (/printf\s*\(\s*[^"%'][^,)]*\s*\)/.test(result.body)) {
-            throw new Error("不正な printf が残っています");
-        }
-        if (/scanf\s*\(\s*[^"%'][^,)]*\s*\)/.test(result.body)) {
-            throw new Error("不正な scanf が残っています");
-        }
-        if (result.body.includes("rand()") && !result.program.includes("#include <stdlib.h>")) {
-            throw new Error("rand() 使用時に stdlib.h がありません");
-        }
-        if (
-            result.body.includes("srand((unsigned int)time(NULL))") &&
-            !result.program.includes("#include <time.h>")
-        ) {
-            throw new Error("乱数初期化() 使用時に time.h がありません");
-        }
-        if (sample.id === "janken") {
-            if (!result.body.includes("srand((unsigned int)time(NULL))")) {
-                throw new Error("じゃんけんに乱数初期化がありません");
-            }
-            if (!result.body.includes("rand() % 3")) {
-                throw new Error("じゃんけんに乱数() % 3 がありません");
-            }
-        }
-        const expectedC = sample.cCode?.trim();
-        if (expectedC && expectedC !== result.program.trim()) {
-            throw new Error("cCode が jpCode の変換結果と一致しません");
-        }
-        console.log(`✓ サンプル: ${sample.title}`);
-        passed++;
-    } catch (err) {
-        console.error(`✗ サンプル: ${sample.title}`);
-        console.error(`  ${err.message}`);
-        failed++;
-    }
-}
-
 console.log(`\n結果: ${passed} 成功, ${failed} 失敗`);
 process.exit(failed > 0 ? 1 : 0);

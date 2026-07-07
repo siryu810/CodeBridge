@@ -6,6 +6,10 @@ const CODEBRIDGE_SAMPLES = [
         id: "hello",
         title: "はじめての表示",
         description: "表示命令の基本",
+        category: "基本",
+        difficulty: 1,
+        tags: ["入門", "表示"],
+        commands: ["表示"],
         learningGoals: ["表示命令で文字列を画面に出す", "プログラムの出力を確認する"],
         jpCode: '表示("Hello, CodeBridge!");',
         cCode: `#include <stdio.h>
@@ -18,11 +22,17 @@ int main(void) {
     return 0;
 }`,
         algorithmSteps: ["文字列を画面に表示する"],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["Hello, CodeBridge!"] },
     },
     {
         id: "input-echo",
         title: "入力と表示",
         description: "scanf の基本",
+        category: "基本",
+        difficulty: 1,
+        tags: ["入門", "入力", "表示"],
+        commands: ["表示", "入力", "整数"],
         learningGoals: ["キーボード入力を読み込む", "入力した値をそのまま表示する"],
         jpCode: `表示("数字を入力");
 整数 player;
@@ -45,11 +55,32 @@ int main(void) {
             "キーボードから整数を読み込む",
             "読み込んだ値を画面に表示する",
         ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "42を入力", stdin: "42", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["42"] },
     },
     {
         id: "janken",
         title: "じゃんけん",
         description: "条件分岐と乱数",
+        category: "条件分岐",
+        difficulty: 3,
+        tags: ["分岐", "乱数", "入力"],
+        commands: [
+            "表示",
+            "続けて表示",
+            "入力",
+            "整数",
+            "乱数",
+            "乱数初期化",
+            "もし",
+            "そうでなくもし",
+            "そうでなければ",
+            "かつ",
+            "または",
+        ],
         learningGoals: [
             "乱数で CPU の手を決める",
             "if / else if / else で分岐する",
@@ -173,11 +204,30 @@ int main(void) {
             "勝ち条件に当てはまれば「勝ち」",
             "それ以外は「負け」",
         ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "チョキ(1)", stdin: "1", expectStatus: "success" },
+        ],
+        expectedOutput: {
+            includes: ["じゃんけんゲーム", "あなたの手:", "CPUの手:", "結果:"],
+        },
     },
     {
         id: "bmi",
         title: "BMI計算",
         description: "小数と計算",
+        category: "計算",
+        difficulty: 3,
+        tags: ["計算", "小数", "分岐", "入力"],
+        commands: [
+            "表示",
+            "続けて表示",
+            "入力",
+            "小数",
+            "もし",
+            "そうでなくもし",
+            "そうでなければ",
+        ],
         learningGoals: [
             "小数型で身長・体重を扱う",
             "BMI の計算式を組み立てる",
@@ -252,11 +302,23 @@ int main(void) {
             "BMI の値に応じて判定を表示する",
             "BMI の目安一覧を表示する",
         ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "1行のみ", stdin: "160", expectStatus: "input_required" },
+            { label: "標準例(160cm/58.6kg)", stdin: "160\n58.6", expectStatus: "success" },
+        ],
+        expectedOutput: {
+            includes: ["BMI：", "22.89", "判定：普通体重", "BMIの目安"],
+        },
     },
     {
         id: "grade",
         title: "成績判定",
         description: "if / else if / else",
+        category: "条件分岐",
+        difficulty: 2,
+        tags: ["分岐", "入力"],
+        commands: ["表示", "入力", "整数", "もし", "そうでなくもし", "そうでなければ"],
         learningGoals: ["点数を入力して受け取る", "else if で段階的に評価を分ける"],
         jpCode: `表示("点数を入力");
 整数 score;
@@ -303,11 +365,20 @@ int main(void) {
             "60点以上なら評価 C",
             "それ以外は評価 不可",
         ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "80点", stdin: "80", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["評価: B"] },
     },
     {
         id: "omikuji",
         title: "おみくじ",
         description: "乱数と分岐",
+        category: "乱数",
+        difficulty: 2,
+        tags: ["乱数", "分岐"],
+        commands: ["乱数初期化", "乱数", "整数", "もし", "そうでなくもし", "そうでなければ", "表示"],
         learningGoals: ["乱数で結果を決める", "複数の else if で結果を分岐する"],
         jpCode: `乱数初期化();
 
@@ -355,11 +426,17 @@ int main(void) {
             "0 なら「大吉」、1 なら「中吉」、2 なら「小吉」",
             "それ以外は「凶」",
         ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: [], oneOf: ["大吉", "中吉", "小吉", "凶"] },
     },
     {
         id: "quiz",
         title: "四則演算クイズ",
         description: "入力・計算・判定",
+        category: "計算",
+        difficulty: 3,
+        tags: ["入力", "分岐", "計算"],
+        commands: ["表示", "入力", "整数", "もし", "そうでなければ"],
         learningGoals: ["複数回の入力を行う", "式の結果と入力値を比較する"],
         jpCode: `表示("1つ目の数");
 整数 a;
@@ -406,6 +483,286 @@ int main(void) {
             "答えが a + b と等しければ「正解!」",
             "それ以外は「不正解」",
         ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            {
+                label: "正解(3+4=7)",
+                stdin: "3\n4\n7",
+                expectStatus: "success",
+                expectedOutput: { includes: ["正解!"] },
+            },
+            {
+                label: "不正解(3+4=8)",
+                stdin: "3\n4\n8",
+                expectStatus: "success",
+                expectedOutput: { includes: ["不正解"] },
+            },
+        ],
+        expectedOutput: { includes: [] },
+    },
+    {
+        id: "even-odd",
+        title: "偶数・奇数判定",
+        description: "剰余と条件分岐",
+        category: "条件分岐",
+        difficulty: 2,
+        tags: ["分岐", "入力", "計算"],
+        commands: ["表示", "入力", "整数", "もし", "そうでなければ"],
+        learningGoals: [
+            "整数を入力して受け取る",
+            "剰余（%）で偶数・奇数を判定する",
+            "if / else で結果を分岐表示する",
+        ],
+        jpCode: `表示("整数を入力");
+整数 n;
+入力(n);
+もし(n % 2が0と等しい){
+    表示("偶数");
+}
+そうでなければ{
+    表示("奇数");
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("整数を入力\\n");
+    int n;
+    scanf("%d", &n);
+    if(n % 2 == 0){
+        printf("偶数\\n");
+    }
+    else{
+        printf("奇数\\n");
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "整数を入力する",
+            "2で割った余りが0なら偶数",
+            "それ以外は奇数",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "偶数(4)", stdin: "4", expectStatus: "success", expectedOutput: { includes: ["偶数"] } },
+            { label: "奇数(7)", stdin: "7", expectStatus: "success", expectedOutput: { includes: ["奇数"] } },
+        ],
+        expectedOutput: { includes: [], oneOf: ["偶数", "奇数"] },
+    },
+    {
+        id: "max-value",
+        title: "最大値を求める",
+        description: "3つの数の比較",
+        category: "計算",
+        difficulty: 2,
+        tags: ["入力", "比較", "変数"],
+        commands: ["表示", "入力", "整数", "もし"],
+        learningGoals: [
+            "複数の値を入力する",
+            "変数に最大値を保持する",
+            "比較してより大きい値に更新する",
+        ],
+        jpCode: `表示("1つ目");
+整数 a;
+入力(a);
+表示("2つ目");
+整数 b;
+入力(b);
+表示("3つ目");
+整数 c;
+入力(c);
+整数 max = a;
+もし(bがmaxより大きい){
+    max = b;
+}
+もし(cがmaxより大きい){
+    max = c;
+}
+表示(max);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("1つ目\\n");
+    int a;
+    scanf("%d", &a);
+    printf("2つ目\\n");
+    int b;
+    scanf("%d", &b);
+    printf("3つ目\\n");
+    int c;
+    scanf("%d", &c);
+    int max = a;
+    if(b > max){
+        max = b;
+    }
+    if(c > max){
+        max = c;
+    }
+    printf("%d\\n", max);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "3つの整数を入力する",
+            "最初の値を最大値とする",
+            "2つ目が大きければ最大値を更新する",
+            "3つ目が大きければ最大値を更新する",
+            "最大値を表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "3,9,5", stdin: "3\n9\n5", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["9"] },
+    },
+    {
+        id: "sum-average",
+        title: "合計と平均",
+        description: "3つの数の合計と平均",
+        category: "計算",
+        difficulty: 2,
+        tags: ["入力", "計算", "小数"],
+        commands: ["表示", "続けて表示", "入力", "整数", "小数"],
+        learningGoals: [
+            "複数の値を入力する",
+            "合計を計算する",
+            "平均を小数で計算して表示する",
+        ],
+        jpCode: `表示("1つ目");
+整数 a;
+入力(a);
+表示("2つ目");
+整数 b;
+入力(b);
+表示("3つ目");
+整数 c;
+入力(c);
+整数 sum = a + b + c;
+小数 avg = (小数)sum / 3;
+続けて表示("合計: ");
+表示(sum);
+続けて表示("平均: ");
+表示(avg);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("1つ目\\n");
+    int a;
+    scanf("%d", &a);
+    printf("2つ目\\n");
+    int b;
+    scanf("%d", &b);
+    printf("3つ目\\n");
+    int c;
+    scanf("%d", &c);
+    int sum = a + b + c;
+    double avg = (double)sum / 3;
+    printf("合計: ");
+    printf("%d\\n", sum);
+    printf("平均: ");
+    printf("%.2f\\n", avg);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "3つの整数を入力する",
+            "3つの値を足して合計を求める",
+            "合計を3で割って平均を計算する",
+            "合計と平均を表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "10,20,30", stdin: "10\n20\n30", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["合計: 60", "平均: 20.00"] },
+    },
+    {
+        id: "for-one-to-ten",
+        title: "for文で1〜10を表示",
+        description: "繰り返しの基本",
+        category: "繰り返し",
+        difficulty: 2,
+        tags: ["繰り返し", "表示"],
+        commands: ["表示", "整数", "繰り返し"],
+        learningGoals: [
+            "for 文（繰り返し）の書き方を学ぶ",
+            "1から10まで順に表示する",
+        ],
+        jpCode: `整数 i;
+繰り返し(i = 1; i <= 10; i++){
+    表示(i);
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int i;
+    for(i = 1; i <= 10; i++){
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "カウンタ変数 i を用意する",
+            "i が 1 から 10 まで1ずつ増えるループを回す",
+            "ループのたびに i の値を表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["1", "10"] },
+    },
+    {
+        id: "array-sum",
+        title: "配列の合計",
+        description: "配列と繰り返し",
+        category: "配列",
+        difficulty: 3,
+        tags: ["配列", "繰り返し", "計算"],
+        commands: ["表示", "続けて表示", "整数", "繰り返し"],
+        learningGoals: [
+            "整数配列を宣言して初期値を入れる",
+            "ループで配列の各要素にアクセスする",
+            "要素の合計を求めて表示する",
+        ],
+        jpCode: `整数 data[5] = {10, 20, 30, 40, 50};
+整数 sum = 0;
+整数 i;
+繰り返し(i = 0; i < 5; i++){
+    sum = sum + data[i];
+}
+続けて表示("合計: ");
+表示(sum);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int data[5] = {10, 20, 30, 40, 50};
+    int sum = 0;
+    int i;
+    for(i = 0; i < 5; i++){
+        sum = sum + data[i];
+    }
+    printf("合計: ");
+    printf("%d\\n", sum);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "5要素の配列に値を入れる",
+            "合計用の変数を0で用意する",
+            "配列の各要素を順に足し込む",
+            "合計を表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["合計: 150"] },
     },
 ];
 
