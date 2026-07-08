@@ -1,6 +1,8 @@
 // CodeBridge サンプルデータ（フロントエンド・テスト共通）
 // jpCode … 日本語→C言語モード用 / cCode … C言語→日本語モード用（実行可能な C プログラム）
 
+import { attachPracticeToSamples } from "./samplePractice.js";
+
 const CODEBRIDGE_SAMPLES = [
     {
         id: "hello",
@@ -764,7 +766,578 @@ int main(void) {
         stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
         expectedOutput: { includes: ["合計: 150"] },
     },
+    {
+        id: "for-kuku",
+        title: "九九（9×9）",
+        description: "二重ループで掛け算表",
+        category: "繰り返し",
+        difficulty: 3,
+        tags: ["繰り返し", "計算"],
+        commands: ["表示", "続けて表示", "整数", "繰り返し"],
+        learningGoals: [
+            "二重のfor文（繰り返し）で表形式の出力を作る",
+            "変数 i と j を使って掛け算の結果を求める",
+            "繰り返しの中にさらに繰り返しを入れ子にする",
+        ],
+        jpCode: `整数 i;
+整数 j;
+繰り返し(i = 1; i <= 9; i++){
+    繰り返し(j = 1; j <= 9; j++){
+        続けて表示(i);
+        続けて表示(" x ");
+        続けて表示(j);
+        続けて表示(" = ");
+        表示(i * j);
+    }
+}
+`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int i;
+    int j;
+    for(i = 1; i <= 9; i++){
+        for(j = 1; j <= 9; j++){
+            printf("%d", i);
+            printf(" x ");
+            printf("%d", j);
+            printf(" = ");
+            printf("%d\\n", i * j);
+        }
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①外側のループで行（1〜9）を決める",
+            "②内側のループで列（1〜9）を決める",
+            "③i × j の結果を「i x j = 答え」の形で表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["1 x 1 = 1", "9 x 9 = 81"] },
+    },
+    {
+        id: "for-reverse",
+        title: "逆順表示（10〜1）",
+        description: "for文でカウントダウン",
+        category: "繰り返し",
+        difficulty: 2,
+        tags: ["繰り返し", "表示"],
+        commands: ["表示", "整数", "繰り返し"],
+        learningGoals: [
+            "for文の初期値・条件・更新を自分で設定する",
+            "10から1まで逆順に表示する",
+            "i-- で変数を1ずつ減らす",
+        ],
+        jpCode: `整数 i;
+繰り返し(i = 10; i >= 1; i--){
+    表示(i);
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int i;
+    for(i = 10; i >= 1; i--){
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①カウンタ i を10から始める",
+            "②i が1以上の間、ループを繰り返す",
+            "③i の値を表示し、i を1減らす",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["10", "1"] },
+    },
+    {
+        id: "for-triangle",
+        title: "＊の三角形",
+        description: "二重ループで図形表示",
+        category: "繰り返し",
+        difficulty: 3,
+        tags: ["繰り返し", "表示"],
+        commands: ["表示", "続けて表示", "整数", "繰り返し"],
+        learningGoals: [
+            "行ごとに表示する＊の数を変える",
+            "二重ループで三角形の形を作る",
+            "続けて表示で改行なしの出力を使う",
+        ],
+        jpCode: `整数 row;
+繰り返し(row = 1; row <= 5; row++){
+    整数 col;
+    繰り返し(col = 1; col <= row; col++){
+        続けて表示("*");
+    }
+    表示("");
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int row;
+    for(row = 1; row <= 5; row++){
+        int col;
+        for(col = 1; col <= row; col++){
+            printf("*");
+        }
+        printf("\\n");
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①1行目から5行目まで繰り返す",
+            "②その行の番号と同じ回数だけ＊を表示する",
+            "③1行終わったら改行して次の行へ進む",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["*", "*****"] },
+    },
+    {
+        id: "while-one-to-hundred",
+        title: "1〜100まで表示",
+        description: "while文の基本",
+        category: "繰り返し",
+        difficulty: 2,
+        tags: ["繰り返し", "表示"],
+        commands: ["表示", "整数", "間"],
+        learningGoals: [
+            "while文（間）で条件が満たされる間ループする",
+            "1から100まで順に表示する",
+            "ループの中で変数を更新する",
+        ],
+        jpCode: `整数 n = 1;
+間(nが100以下){
+    表示(n);
+    n = n + 1;
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int n = 1;
+    while(n <= 100){
+        printf("%d\\n", n);
+        n = n + 1;
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①変数 n を1で初期化する",
+            "②n が100以下の間、表示と加算を繰り返す",
+            "③n を1増やして次のループへ進む",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["1", "100"] },
+    },
+    {
+        id: "while-until-zero",
+        title: "0が入力されるまで繰り返す",
+        description: "while文と入力",
+        category: "繰り返し",
+        difficulty: 3,
+        tags: ["繰り返し", "入力"],
+        commands: ["表示", "入力", "整数", "間"],
+        learningGoals: [
+            "入力した値が0になるまで繰り返す",
+            "while文で終了条件を設定する",
+            "ループの中で何度も入力を受け取る",
+        ],
+        jpCode: `表示("数字を入力してください(0で終了)");
+整数 n;
+入力(n);
+間(nが0と等しくない){
+    表示(n);
+    入力(n);
+}`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("数字を入力してください(0で終了)\\n");
+    int n;
+    scanf("%d", &n);
+    while(n != 0){
+        printf("%d\\n", n);
+        scanf("%d", &n);
+    }
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①最初の数字を入力する",
+            "②0以外が入力されている間、ループを続ける",
+            "③入力した数字を表示し、次の数字を入力する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "5と0", stdin: "5\n0", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["5"] },
+    },
+    {
+        id: "array-max",
+        title: "配列の最大値",
+        description: "配列を走査して最大値を求める",
+        category: "配列",
+        difficulty: 3,
+        tags: ["配列", "繰り返し", "比較"],
+        commands: ["表示", "続けて表示", "整数", "繰り返し", "もし"],
+        learningGoals: [
+            "配列の各要素を順に調べる",
+            "これまでの最大値と比較して更新する",
+            "ループで配列全体を処理する",
+        ],
+        jpCode: `整数 data[5] = {3, 9, 1, 7, 4};
+整数 max = data[0];
+整数 i;
+繰り返し(i = 1; i < 5; i++){
+    整数 temp = data[i];
+    もし(tempがmaxより大きい){
+        max = temp;
+    }
+}
+続けて表示("最大値: ");
+表示(max);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int data[5] = {3, 9, 1, 7, 4};
+    int max = data[0];
+    int i;
+    for(i = 1; i < 5; i++){
+        int temp = data[i];
+        if(temp > max){
+            max = temp;
+        }
+    }
+    printf("最大値: ");
+    printf("%d\\n", max);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①配列の先頭を最大値の初期値とする",
+            "②2番目以降の要素を1つずつ調べる",
+            "③より大きい値があれば最大値を更新し、最後に表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["最大値: 9"] },
+    },
+    {
+        id: "array-min",
+        title: "配列の最小値",
+        description: "配列を走査して最小値を求める",
+        category: "配列",
+        difficulty: 3,
+        tags: ["配列", "繰り返し", "比較"],
+        commands: ["表示", "続けて表示", "整数", "繰り返し", "もし"],
+        learningGoals: [
+            "配列の各要素を順に調べる",
+            "これまでの最小値と比較して更新する",
+            "最大値を求める処理と同じ考え方を使う",
+        ],
+        jpCode: `整数 data[5] = {3, 9, 1, 7, 4};
+整数 min = data[0];
+整数 i;
+繰り返し(i = 1; i < 5; i++){
+    整数 temp = data[i];
+    もし(tempがminより小さい){
+        min = temp;
+    }
+}
+続けて表示("最小値: ");
+表示(min);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int data[5] = {3, 9, 1, 7, 4};
+    int min = data[0];
+    int i;
+    for(i = 1; i < 5; i++){
+        int temp = data[i];
+        if(temp < min){
+            min = temp;
+        }
+    }
+    printf("最小値: ");
+    printf("%d\\n", min);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①配列の先頭を最小値の初期値とする",
+            "②2番目以降の要素を1つずつ調べる",
+            "③より小さい値があれば最小値を更新し、最後に表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["最小値: 1"] },
+    },
+    {
+        id: "array-average",
+        title: "配列の平均",
+        description: "配列の合計と平均を求める",
+        category: "配列",
+        difficulty: 3,
+        tags: ["配列", "繰り返し", "計算", "小数"],
+        commands: ["表示", "続けて表示", "整数", "小数", "繰り返し"],
+        learningGoals: [
+            "配列の全要素を足し合わせて合計を求める",
+            "合計を要素数で割って平均を計算する",
+            "整数から小数への型変換を使う",
+        ],
+        jpCode: `整数 data[5] = {10, 20, 30, 40, 50};
+整数 sum = 0;
+整数 i;
+繰り返し(i = 0; i < 5; i++){
+    sum = sum + data[i];
+}
+小数 avg = (小数)sum / 5;
+続けて表示("平均: ");
+表示(avg);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int data[5] = {10, 20, 30, 40, 50};
+    int sum = 0;
+    int i;
+    for(i = 0; i < 5; i++){
+        sum = sum + data[i];
+    }
+    double avg = (double)sum / 5;
+    printf("平均: ");
+    printf("%.2f\\n", avg);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①配列の各要素を順に足して合計を求める",
+            "②合計を要素数（5）で割る",
+            "③平均を小数で表示する",
+        ],
+        stdinExamples: [{ label: "入力なし", stdin: "", expectStatus: "success" }],
+        expectedOutput: { includes: ["平均: 30.00"] },
+    },
+    {
+        id: "func-add",
+        title: "足し算関数",
+        description: "2つの数を足す関数",
+        category: "関数",
+        difficulty: 3,
+        tags: ["関数", "入力", "計算"],
+        commands: ["表示", "続けて表示", "入力", "整数", "戻る"],
+        learningGoals: [
+            "引数を受け取る関数を定義する",
+            "関数の戻り値を使って計算結果を得る",
+            "入力した2つの数を関数に渡す",
+        ],
+        jpCode: `整数 add(整数 a, 整数 b){
+    戻る a + b;
+}
+表示("1つ目");
+整数 a;
+入力(a);
+表示("2つ目");
+整数 b;
+入力(b);
+整数 result = add(a, b);
+続けて表示("合計: ");
+表示(result);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int add(int a, int b){
+        return a + b;
+    }
+    printf("1つ目\\n");
+    int a;
+    scanf("%d", &a);
+    printf("2つ目\\n");
+    int b;
+    scanf("%d", &b);
+    int result = add(a, b);
+    printf("合計: ");
+    printf("%d\\n", result);
+}`,
+        algorithmSteps: [
+            "①2つの整数を受け取り、足した結果を返す関数を作る",
+            "②キーボードから2つの数を入力する",
+            "③関数を呼び出して合計を表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "3と4", stdin: "3\n4", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["合計: 7"] },
+    },
+    {
+        id: "func-max",
+        title: "最大値を返す関数",
+        description: "2つの数の大きい方を返す",
+        category: "関数",
+        difficulty: 3,
+        tags: ["関数", "入力", "分岐"],
+        commands: ["表示", "続けて表示", "入力", "整数", "もし", "戻る"],
+        learningGoals: [
+            "条件分岐を使って大きい方の値を選ぶ",
+            "関数から結果を返す（戻る）",
+            "関数の戻り値を変数に代入する",
+        ],
+        jpCode: `整数 getMax(整数 a, 整数 b){
+    もし(aがbより大きい){
+        戻る a;
+    }
+    戻る b;
+}
+表示("1つ目");
+整数 a;
+入力(a);
+表示("2つ目");
+整数 b;
+入力(b);
+整数 result = getMax(a, b);
+続けて表示("最大: ");
+表示(result);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    int getMax(int a, int b){
+        if(a > b){
+            return a;
+        }
+        return b;
+    }
+    printf("1つ目\\n");
+    int a;
+    scanf("%d", &a);
+    printf("2つ目\\n");
+    int b;
+    scanf("%d", &b);
+    int result = getMax(a, b);
+    printf("最大: ");
+    printf("%d\\n", result);
+}`,
+        algorithmSteps: [
+            "①2つの整数を比較する関数を作る",
+            "②大きい方の値を戻り値として返す",
+            "③入力した2つの数で関数を呼び出し、結果を表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "3と9", stdin: "3\n9", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["最大: 9"] },
+    },
+    {
+        id: "string-name",
+        title: "名前を入力して表示",
+        description: "文字列の入力と表示",
+        category: "文字列",
+        difficulty: 2,
+        tags: ["文字列", "入力", "表示"],
+        commands: ["表示", "続けて表示", "入力", "文字列"],
+        learningGoals: [
+            "文字列型の変数を宣言する",
+            "キーボードから名前を入力する",
+            "入力した文字列をそのまま表示する",
+        ],
+        jpCode: `表示("名前を入力");
+文字列 name[50];
+入力(name);
+続けて表示("こんにちは、");
+表示(name);`,
+        cCode: `#include <stdio.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("名前を入力\\n");
+    char name[50];
+    scanf("%s", name);
+    printf("こんにちは、");
+    printf("%s\\n", name);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①文字列を格納する変数を用意する",
+            "②キーボードから名前を入力する",
+            "③「こんにちは、」と入力した名前を表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "太郎", stdin: "太郎", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["こんにちは、太郎"] },
+    },
+    {
+        id: "string-strlen",
+        title: "文字数を表示",
+        description: "strlenで文字列の長さ",
+        category: "文字列",
+        difficulty: 3,
+        tags: ["文字列", "入力", "計算"],
+        commands: ["表示", "続けて表示", "入力", "文字列", "整数"],
+        learningGoals: [
+            "文字列を入力して受け取る",
+            "strlen関数で文字数を数える",
+            "文字数を画面に表示する",
+        ],
+        jpCode: `表示("文字列を入力");
+文字列 text[100];
+入力(text);
+整数 len = strlen(text);
+続けて表示("文字数: ");
+表示(len);`,
+        cCode: `#include <stdio.h>
+#include <string.h>
+
+int main(void) {
+    setbuf(stdout, NULL);
+
+    printf("文字列を入力\\n");
+    char text[100];
+    scanf("%s", text);
+    int len = strlen(text);
+    printf("文字数: ");
+    printf("%d\\n", len);
+
+    return 0;
+}`,
+        algorithmSteps: [
+            "①文字列を入力する",
+            "②strlenで文字数を数える",
+            "③文字数を画面に表示する",
+        ],
+        stdinExamples: [
+            { label: "入力なし", stdin: "", expectStatus: "input_required" },
+            { label: "Hello", stdin: "Hello", expectStatus: "success" },
+        ],
+        expectedOutput: { includes: ["文字数: 5"] },
+    },
 ];
+
+attachPracticeToSamples(CODEBRIDGE_SAMPLES);
 
 const HOME_FEATURED_SAMPLE_IDS = ["janken", "bmi", "grade", "omikuji"];
 

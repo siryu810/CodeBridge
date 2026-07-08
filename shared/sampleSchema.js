@@ -2,6 +2,8 @@
 
 export {
     REQUIRED_SAMPLE_FIELDS,
+    REQUIRED_PRACTICE_FIELDS,
+    validatePracticeSchema,
     countJapaneseInputs,
     countNonEmptyStdinLines,
     pickRunOutputText,

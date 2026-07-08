@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import CodeBridgeJp2c from "./shared/jp2c.js";
 import CodeBridgeC2jp from "./shared/c2jp.js";
 import { CODEBRIDGE_SAMPLES, HOME_FEATURED_SAMPLE_IDS, NEW_PROJECT_TEMPLATE } from "./shared/samples.js";
+import { computeProgressStats, createEmptyProgress } from "./frontend/src/lib/progress.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname);
@@ -136,6 +137,85 @@ check("全サンプルに algorithmSteps がある", () => {
     for (const sample of CODEBRIDGE_SAMPLES) {
         if (!Array.isArray(sample.algorithmSteps) || sample.algorithmSteps.length === 0) {
             throw new Error(`${sample.title} に algorithmSteps がありません`);
+        }
+    }
+});
+
+check("全サンプルに practice がある", () => {
+    for (const sample of CODEBRIDGE_SAMPLES) {
+        if (!sample.practice?.prompt?.trim()) {
+            throw new Error(`${sample.id}: practice.prompt がありません`);
+        }
+        if (!Array.isArray(sample.practice.hints)) {
+            throw new Error(`${sample.id}: practice.hints がありません`);
+        }
+        if (!Array.isArray(sample.practice.expectedCommands)) {
+            throw new Error(`${sample.id}: practice.expectedCommands がありません`);
+        }
+        if (!Array.isArray(sample.practice.expectedOutputIncludes)) {
+            throw new Error(`${sample.id}: practice.expectedOutputIncludes がありません`);
+        }
+    }
+});
+
+check("学習進捗モジュールが存在する", () => {
+    assertIncludes(read("frontend/src/lib/progress.js"), "codebridge-progress-v1", "storage key");
+    assertIncludes(read("frontend/src/lib/progress.js"), "computeProgressStats", "stats");
+    assertIncludes(read("frontend/src/components/ProgressSummary.jsx"), "学習進捗", "summary UI");
+    assertIncludes(read("frontend/src/components/HomeView.jsx"), "続きから学習", "continue card");
+    assertIncludes(read("frontend/src/components/HomeView.jsx"), "学習進捗をリセット", "reset");
+});
+
+check("進捗統計を計算できる", () => {
+    const store = createEmptyProgress();
+    store.samples.hello = { completed: true, attempts: 2, lastPlayed: "2026-07-08" };
+    store.meta.lastSampleId = "hello";
+    const stats = computeProgressStats(store, CODEBRIDGE_SAMPLES);
+    if (stats.totalSamples !== CODEBRIDGE_SAMPLES.length) {
+        throw new Error(`totalSamples が不正: ${stats.totalSamples}`);
+    }
+    if (stats.practiceCleared !== 1) {
+        throw new Error(`practiceCleared が不正: ${stats.practiceCleared}`);
+    }
+    if (stats.samplesPlayed !== 1) {
+        throw new Error(`samplesPlayed が不正: ${stats.samplesPlayed}`);
+    }
+    if (!stats.byCategory["基本"]) {
+        throw new Error("byCategory に基本がありません");
+    }
+});
+
+check("コード比較モジュールが存在する", () => {
+    assertIncludes(read("frontend/src/lib/codeDiff.js"), "compareJapaneseCode", "compareJapaneseCode");
+    assertIncludes(read("frontend/src/components/CodeDiffViewer.jsx"), "CodeCompareModal", "modal");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "模範解答と比較", "practice compare");
+});
+
+check("学習ロードマップUIが存在する", () => {
+    assertIncludes(read("shared/learningRoadmap.js"), "LEARNING_ROADMAP", "roadmap data");
+    assertIncludes(read("frontend/src/components/LearningRoadmap.jsx"), "学習ロードマップ", "roadmap UI");
+    assertIncludes(read("frontend/src/components/LearningRoadmap.jsx"), "すべて開放", "unlock all");
+    assertIncludes(read("frontend/src/components/NextLearnCard.jsx"), "次に学ぶ", "next learn");
+    assertIncludes(read("frontend/src/components/HomeView.jsx"), "すべての章を開放する", "unlock setting");
+});
+
+check("全サンプルの jpCode が日本語→C変換できる", () => {
+    for (const sample of CODEBRIDGE_SAMPLES) {
+        const converted = CodeBridgeJp2c.convertJapaneseToC(sample.jpCode);
+        if (!converted.program?.includes("int main")) {
+            throw new Error(`${sample.id}: int main が生成されません`);
+        }
+        if (converted.errors?.length > 0) {
+            throw new Error(`${sample.id}: 変換エラー — ${converted.errors[0].messageJa}`);
+        }
+    }
+});
+
+check("全サンプルの cCode が C→日本語変換できる", () => {
+    for (const sample of CODEBRIDGE_SAMPLES) {
+        const converted = CodeBridgeC2jp.convertCToJapanese(sample.cCode);
+        if (!converted.body?.trim()) {
+            throw new Error(`${sample.id}: 日本語本体が空です`);
         }
     }
 });

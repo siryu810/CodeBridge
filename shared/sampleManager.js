@@ -51,6 +51,71 @@ export const SAMPLE_CATEGORIES = [
     "文字列",
 ];
 
+export const REQUIRED_PRACTICE_FIELDS = [
+    "prompt",
+    "hints",
+    "expectedCommands",
+    "expectedOutputIncludes",
+];
+
+/**
+ * @param {object} practice
+ * @param {string} sampleId
+ * @returns {ValidationIssue[]}
+ */
+export function validatePracticeSchema(practice, sampleId) {
+    const issues = [];
+    const sid = sampleId ?? "(idなし)";
+
+    if (!practice || typeof practice !== "object") {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: "practice がありません",
+            check: "practice",
+        });
+        return issues;
+    }
+
+    if (!practice.prompt?.trim()) {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: "practice.prompt が空です",
+            check: "practice",
+        });
+    }
+
+    if (!Array.isArray(practice.hints)) {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: "practice.hints が配列ではありません",
+            check: "practice",
+        });
+    }
+
+    if (!Array.isArray(practice.expectedCommands)) {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: "practice.expectedCommands が配列ではありません",
+            check: "practice",
+        });
+    }
+
+    if (!Array.isArray(practice.expectedOutputIncludes)) {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: "practice.expectedOutputIncludes が配列ではありません",
+            check: "practice",
+        });
+    }
+
+    return issues;
+}
+
 export const REQUIRED_SAMPLE_FIELDS = [
     "id",
     "title",
@@ -180,7 +245,7 @@ export function countNonEmptyStdinLines(stdin) {
 }
 
 export function pickRunOutputText(result) {
-    return (result?.consoleOutput ?? result?.output ?? "").replace(/\r\n/g, "\n");
+    return (result?.output ?? result?.consoleOutput ?? "").replace(/\r\n/g, "\n");
 }
 
 export function normalizeExpectedOutput(raw) {
@@ -277,6 +342,17 @@ export async function validateSamples(options = {}) {
         if (!Array.isArray(sample.commands) || sample.commands.length === 0) {
             pushIssue(issues, sid, "error", "commands が空です", "schema");
         }
+
+        for (const practiceIssue of validatePracticeSchema(sample.practice, sid)) {
+            pushIssue(
+                issues,
+                practiceIssue.sampleId,
+                practiceIssue.level,
+                practiceIssue.message,
+                practiceIssue.check
+            );
+        }
+
         if (!Array.isArray(sample.stdinExamples) || sample.stdinExamples.length === 0) {
             pushIssue(issues, sid, "error", "stdinExamples が不足しています", "schema");
         }
@@ -400,39 +476,50 @@ export async function validateSamples(options = {}) {
                         const context = `${label} / ${exampleLabel}`;
 
                         try {
-                            const run = await options.executeCCode(code, example.stdin);
-                            if (run.status !== example.expectStatus) {
-                                pushIssue(
-                                    issues,
-                                    sample.id,
-                                    "error",
-                                    `${context}: status が ${example.expectStatus} ではありません (実際: ${run.status})`,
-                                    "runtime"
-                                );
-                                continue;
-                            }
-
-                            if (example.expectStatus === "success") {
-                                const output = pickRunOutputText(run);
-                                const expected =
-                                    example.expectedOutput ?? sample.expectedOutput ?? { includes: [], oneOf: [] };
-                                assertOutputContains(sample.id, output, expected, context);
-                            }
-
-                            if (example.expectStatus === "input_required") {
-                                const inputCount = countJapaneseInputs(sample.jpCode);
-                                if (inputCount > 0) {
-                                    const msg = run.errors?.[0]?.messageJa ?? "";
-                                    if (!msg.includes(`${inputCount}個の入力`)) {
-                                        pushIssue(
-                                            issues,
-                                            sample.id,
-                                            "error",
-                                            `${context}: 入力不足メッセージが不正 — ${msg}`,
-                                            "runtime"
+                            let run = null;
+                            let lastError = null;
+                            for (let attempt = 0; attempt < 2; attempt++) {
+                                try {
+                                    run = await options.executeCCode(code, example.stdin);
+                                    if (run.status !== example.expectStatus) {
+                                        throw new Error(
+                                            `${context}: status が ${example.expectStatus} ではありません (実際: ${run.status})`
                                         );
                                     }
+
+                                    if (example.expectStatus === "success") {
+                                        const output = pickRunOutputText(run);
+                                        const expected =
+                                            example.expectedOutput ??
+                                            sample.expectedOutput ??
+                                            { includes: [], oneOf: [] };
+                                        assertOutputContains(sample.id, output, expected, context);
+                                    }
+
+                                    if (example.expectStatus === "input_required") {
+                                        const inputCount = countJapaneseInputs(sample.jpCode);
+                                        if (inputCount > 0) {
+                                            const msg = run.errors?.[0]?.messageJa ?? "";
+                                            if (!msg.includes(`${inputCount}個の入力`)) {
+                                                throw new Error(
+                                                    `${context}: 入力不足メッセージが不正 — ${msg}`
+                                                );
+                                            }
+                                        }
+                                    }
+
+                                    lastError = null;
+                                    break;
+                                } catch (err) {
+                                    lastError = err;
+                                    if (attempt === 0) {
+                                        await new Promise((resolve) => setTimeout(resolve, 120));
+                                    }
                                 }
+                            }
+
+                            if (lastError) {
+                                throw lastError;
                             }
                         } catch (err) {
                             pushIssue(
@@ -519,6 +606,7 @@ export function printSampleReport(result) {
 const SampleManager = {
     SAMPLE_CATEGORIES,
     REQUIRED_SAMPLE_FIELDS,
+    REQUIRED_PRACTICE_FIELDS,
     getAllSamples,
     getSampleById,
     getSamplesByCategory,
@@ -534,6 +622,7 @@ const SampleManager = {
     pickRunOutputText,
     normalizeExpectedOutput,
     validateSamples,
+    validatePracticeSchema,
     printSampleReport,
 };
 

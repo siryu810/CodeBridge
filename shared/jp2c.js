@@ -248,12 +248,16 @@ function fixSrandInitSyntax(code) {
 function extractVariableTypes(code) {
     const types = new Map();
     const declPattern = new RegExp(
-        `\\b(int|double|char)\\s+(${IDENT})(?:\\s*[=;,]|\\s*$)`,
+        `\\b(int|double|char)\\s+(${IDENT})(\\[[^\\]]*\\])?(?:\\s*[=;,]|\\s*$)`,
         "g"
     );
     let match;
     while ((match = declPattern.exec(code)) !== null) {
-        types.set(match[2], match[1]);
+        if (match[1] === "char" && match[3]) {
+            types.set(match[2], "cstring");
+        } else {
+            types.set(match[2], match[1]);
+        }
     }
     return types;
 }
@@ -364,6 +368,7 @@ function addNewlineToStringLiteral(literal) {
 function printfFormatForTypeNoNewline(type) {
     if (type === "double") return "%.2f";
     if (type === "char") return "%c";
+    if (type === "cstring") return "%s";
     return "%d";
 }
 
@@ -378,12 +383,14 @@ function fixPrintfNoNewline(code, varTypes) {
 function printfFormatForType(type) {
     if (type === "double") return "%.2f\\n";
     if (type === "char") return "%c\\n";
+    if (type === "cstring") return "%s\\n";
     return "%d\\n";
 }
 
 function scanfFormatForType(type) {
     if (type === "double") return "%lf";
     if (type === "char") return " %c";
+    if (type === "cstring") return "%s";
     return "%d";
 }
 
@@ -406,6 +413,9 @@ function fixScanfByVariableTypes(code, varTypes) {
 
         const name = nameMatch[1];
         const type = varTypes.get(name) ?? "int";
+        if (type === "cstring") {
+            return `scanf("${scanfFormatForType(type)}", ${name})`;
+        }
         return `scanf("${scanfFormatForType(type)}", &${name})`;
     });
 }
@@ -417,7 +427,9 @@ function removeConsecutiveDuplicateLines(code) {
 
     for (const line of lines) {
         const trimmed = line.trim();
-        if (trimmed.length > 0 && trimmed === prevTrimmed) continue;
+        if (trimmed.length > 0 && trimmed === prevTrimmed && trimmed !== "}" && trimmed !== "{") {
+            continue;
+        }
         out.push(line);
         if (trimmed.length > 0) prevTrimmed = trimmed;
     }
@@ -431,11 +443,16 @@ const UNSUPPORTED_SYNTAX_MESSAGE =
 
 function detectRemainingJapaneseKeywords(body) {
     const warnings = [];
-    if (
-        /(?:続けて表示|表示|入力|もし|そうでなくもし|そうでなければ|整数|小数|文字|乱数初期化|乱数|戻る|繰り返し)\s*\(/.test(
-            body
-        )
-    ) {
+    const checkPattern =
+        /(?:続けて表示|表示|入力|もし|そうでなくもし|そうでなければ|整数|小数|文字|乱数初期化|乱数|戻る|繰り返し)\s*\(/;
+    let found = false;
+
+    mapOutsideStrings(body, (segment) => {
+        if (checkPattern.test(segment)) found = true;
+        return segment;
+    });
+
+    if (found) {
         warnings.push({ messageJa: UNSUPPORTED_SYNTAX_MESSAGE });
     }
     return warnings;
@@ -526,6 +543,9 @@ function getCProgramParts(convertedBody) {
     }
     if (/\bsrand\s*\(/.test(body) || /\btime\s*\(/.test(body)) {
         includes.push("#include <time.h>");
+    }
+    if (/\bstrlen\s*\(/.test(body)) {
+        includes.push("#include <string.h>");
     }
 
     const bodyBlock = body.length > 0 ? reindentCBlock(body, 1) : "";

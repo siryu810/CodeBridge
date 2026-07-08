@@ -248,10 +248,18 @@ function createRunId() {
 }
 
 async function cleanupWorkDir(workDir) {
-    try {
-        await fsp.rm(workDir, { recursive: true, force: true });
-    } catch (err) {
-        console.warn("作業フォルダ削除失敗:", workDir, err.message);
+    for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+            await fsp.rm(workDir, { recursive: true, force: true });
+            return;
+        } catch (err) {
+            const retryable = err.code === "EBUSY" || err.code === "EPERM";
+            if (retryable && attempt < 3) {
+                await new Promise((resolve) => setTimeout(resolve, 40 * (attempt + 1)));
+                continue;
+            }
+            console.warn("作業フォルダ削除失敗:", workDir, err.message);
+        }
     }
 }
 
@@ -612,6 +620,7 @@ async function executeCCode(sourceCode, stdinText) {
             ...runMeta,
         });
     } finally {
+        await new Promise((resolve) => setTimeout(resolve, 15));
         await cleanupWorkDir(workDir);
     }
 }

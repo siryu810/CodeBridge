@@ -9,7 +9,7 @@
     "dev:client": "npm run dev --prefix frontend",
     "dev": "node scripts/dev.mjs",
     "build": "npm run build --prefix frontend",
-    "test": "node test-convert.mjs && node test-regression.mjs && node test-run.mjs && node scripts/validate-samples.mjs",
+    "test": "node test-convert.mjs && node test-regression.mjs && node test-run.mjs && node test-code-diff.mjs && node test-roadmap.mjs && node scripts/validate-samples.mjs",
     "check": "npm test && node scripts/check-syntax.mjs && npm run build",
     "validate-samples": "node scripts/validate-samples.mjs"
   },

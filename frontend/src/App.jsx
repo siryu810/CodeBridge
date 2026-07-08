@@ -11,6 +11,7 @@ import { ServerStatusBanner } from "./components/ServerStatusBanner.jsx";
 import { useServerHealth } from "./hooks/useServerHealth.js";
 
 import { addToRecent } from "./lib/recent.js";
+import { recordSamplePlayed } from "./lib/progress.js";
 
 import {
 
@@ -49,6 +50,8 @@ export default function App() {
         setProjectTitle(sample.title ?? "");
 
         setSampleId(sample.id ?? null);
+
+        recordSamplePlayed(sample.id ?? null);
 
         addToRecent(sample.title, sample.jpCode ?? "");
 

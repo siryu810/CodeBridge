@@ -1,13 +1,18 @@
 const PANEL_LABELS = {
+    practice: "練習",
     learning: "学習",
     dict: "対応表",
     error: "エラー",
 };
 
-export function IdeSideRail({ activePanel, onToggle, hasErrorBadge }) {
+export function IdeSideRail({ activePanel, onToggle, hasErrorBadge, showPractice = false }) {
+    const panelIds = showPractice
+        ? ["practice", "learning", "dict", "error"]
+        : ["learning", "dict", "error"];
+
     return (
         <aside className="ide-rail" aria-label="サイドパネル">
-            {(["learning", "dict", "error"]).map((id) => (
+            {panelIds.map((id) => (
                 <button
                     key={id}
                     type="button"

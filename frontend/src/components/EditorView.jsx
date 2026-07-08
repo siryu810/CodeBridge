@@ -3,6 +3,7 @@ import { JapaneseEditor } from "./JapaneseEditor.jsx";
 import { CCodePreview } from "./CCodePreview.jsx";
 import { RuntimeInput } from "./RuntimeInput.jsx";
 import { LearningPanel } from "./LearningPanel.jsx";
+import { PracticePanel } from "./PracticePanel.jsx";
 import { DictionaryPanel } from "./DictionaryPanel.jsx";
 import { CommandDictionaryModal } from "./CommandDictionaryModal.jsx";
 import { SampleList } from "./SampleList.jsx";
@@ -20,11 +21,13 @@ import {
 } from "../lib/convert.js";
 import { findUsedLearningEntries } from "../lib/learning.js";
 import { runCodeOnServer, parseRunResponse } from "../lib/runApi.js";
+import { useLearningProgress } from "../hooks/useLearningProgress.js";
 
 const DEFAULT_RUN_OUTPUT = "「実行」を押すと、コンソールに出力が表示されます。";
 const DEFAULT_ERROR = "エラーがない場合は空です。";
 
 const SIDE_PANEL_TITLES = {
+    practice: "練習モード",
     learning: "⑤ 学習モード",
     dict: "⑥ 日本語 ⇔ C言語 対応表",
     error: "④ 日本語エラー",
@@ -58,6 +61,8 @@ export function EditorView({
     const [forceStdinVisible, setForceStdinVisible] = useState(false);
     const [modalEntry, setModalEntry] = useState(null);
     const [sidePanel, setSidePanel] = useState(null);
+
+    const { stats } = useLearningProgress();
 
     const {
         previewVisible,
@@ -127,9 +132,16 @@ export function EditorView({
         return () => document.body.classList.remove("body--ide");
     }, []);
 
+    useEffect(() => {
+        if (sampleId) setSidePanel("practice");
+    }, [sampleId]);
+
     const handleSampleSelect = useCallback(
         (sample) => {
-            if (sample) onOpenSample?.(sample);
+            if (sample) {
+                onOpenSample?.(sample);
+                setSidePanel("practice");
+            }
         },
         [onOpenSample]
     );
@@ -229,6 +241,11 @@ export function EditorView({
                         CodeBridge
                         {projectTitle ? ` — ${projectTitle}` : ""}
                     </span>
+                    {isSampleContext && (
+                        <span className="ide-toolbar-progress" title="練習クリア達成率">
+                            達成率 {stats.achievementRate}%
+                        </span>
+                    )}
                 </div>
 
                 <div className="ide-toolbar-center">
@@ -254,7 +271,18 @@ export function EditorView({
                             C言語 → 日本語
                         </label>
                     </div>
-                    <SampleList onSelect={handleSampleSelect} />
+                    <SampleList showProgress onSelect={handleSampleSelect} />
+                    {isSampleContext && (
+                        <button
+                            type="button"
+                            className={`ide-toolbar-btn ide-toolbar-btn--practice${sidePanel === "practice" ? " is-active" : ""}`}
+                            onClick={() => toggleSidePanel("practice")}
+                            title="練習モードを開く"
+                            aria-pressed={sidePanel === "practice"}
+                        >
+                            練習
+                        </button>
+                    )}
                 </div>
 
                 <div className="ide-toolbar-right">
@@ -280,6 +308,15 @@ export function EditorView({
             </header>
 
             <div className="ide-main">
+                {sidePanel && (
+                    <button
+                        type="button"
+                        className="ide-slide-backdrop"
+                        aria-label="パネルを閉じる"
+                        onClick={() => setSidePanel(null)}
+                    />
+                )}
+
                 <div className="ide-center">
                     <IdeWorkspaceSplit
                         editorTitle={inputTitle}
@@ -331,7 +368,19 @@ export function EditorView({
                     activePanel={sidePanel}
                     onToggle={toggleSidePanel}
                     hasErrorBadge={errorBadge}
+                    showPractice={isSampleContext}
                 />
+
+                <IdeSlidePanel
+                    open={sidePanel === "practice"}
+                    title={SIDE_PANEL_TITLES.practice}
+                    onClose={() => setSidePanel(null)}
+                >
+                    <PracticePanel
+                        embedded
+                        activeSample={activeSample}
+                    />
+                </IdeSlidePanel>
 
                 <IdeSlidePanel
                     open={sidePanel === "learning"}

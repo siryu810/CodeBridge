@@ -1,16 +1,96 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { SampleList } from "./SampleList.jsx";
+import { ProgressSummary } from "./ProgressSummary.jsx";
+import { CategoryProgress } from "./CategoryProgress.jsx";
+import { LearningRoadmap } from "./LearningRoadmap.jsx";
+import { NextLearnCard } from "./NextLearnCard.jsx";
 import { getRecentList, formatRecentDate } from "../lib/recent.js";
+import { useLearningProgress } from "../hooks/useLearningProgress.js";
+import { useLearningRoadmap } from "../hooks/useLearningRoadmap.js";
+import { CODEBRIDGE_SAMPLES } from "../data/samples.js";
 
 export function HomeView({ onNewProject, onOpenSample, onOpenRecent }) {
     const [recent, setRecent] = useState([]);
+    const { stats, clearAllProgress } = useLearningProgress();
+    const {
+        chapters,
+        nextChapter,
+        nextSampleId,
+        getSampleById,
+        settings,
+        setUnlockAll,
+    } = useLearningRoadmap();
 
     useEffect(() => {
         setRecent(getRecentList());
     }, []);
 
+    const continueSample = useMemo(() => {
+        if (!stats.lastSampleId) return null;
+        return CODEBRIDGE_SAMPLES.find((s) => s.id === stats.lastSampleId) ?? null;
+    }, [stats.lastSampleId]);
+
+    const nextSample = useMemo(
+        () => (nextSampleId ? getSampleById(nextSampleId) : null),
+        [nextSampleId, getSampleById]
+    );
+
+    const handleOpenSampleId = (sampleId) => {
+        const sample = getSampleById(sampleId);
+        if (sample) onOpenSample?.(sample);
+    };
+
+    const handleResetProgress = () => {
+        if (
+            window.confirm(
+                "学習進捗をすべてリセットしますか？\n（練習のクリア状況と挑戦回数が消えます）"
+            )
+        ) {
+            clearAllProgress();
+        }
+    };
+
     return (
         <main className="home-view">
+            <section className="panel home-progress-panel">
+                <ProgressSummary stats={stats} />
+            </section>
+
+            <NextLearnCard
+                nextChapter={nextChapter}
+                nextSample={nextSample}
+                onStart={(sample) => sample && onOpenSample?.(sample)}
+            />
+
+            {continueSample && (
+                <section className="panel home-section home-continue">
+                    <h3 className="home-section-title">続きから学習</h3>
+                    <p className="home-section-desc">
+                        前回のサンプル「{continueSample.title}」から再開できます。
+                    </p>
+                    <button
+                        type="button"
+                        className="home-continue-btn"
+                        onClick={() => onOpenSample?.(continueSample)}
+                    >
+                        続きから学習 →
+                    </button>
+                </section>
+            )}
+
+            <section className="panel home-section home-roadmap-panel">
+                <LearningRoadmap
+                    chapters={chapters}
+                    unlockAll={settings.unlockAll}
+                    onUnlockAllChange={setUnlockAll}
+                    onOpenSample={handleOpenSampleId}
+                />
+            </section>
+
+            <section className="panel home-section">
+                <CategoryProgress byCategory={stats.byCategory} />
+            </section>
+
             <section className="home-hero panel">
                 <h2 className="home-hero-title">CodeBridge へようこそ</h2>
                 <p className="home-hero-text">
@@ -36,13 +116,29 @@ export function HomeView({ onNewProject, onOpenSample, onOpenRecent }) {
                 </section>
 
                 <section className="panel home-section">
-                    <h3 className="home-section-title">サンプルを開く</h3>
+                    <h3 className="home-section-title">おすすめサンプル</h3>
                     <p className="home-section-desc">
-                        題材のコードを選ぶと、エディタに読み込まれます。モードに応じて日本語版・C言語版が切り替わります。
+                        人気の題材から始められます。カード右上の ✓ は練習クリア済みです。
                     </p>
-                    <SampleList featuredOnly onSelect={(s) => s && onOpenSample(s)} />
+                    <SampleList
+                        featuredOnly
+                        showProgress
+                        onSelect={(s) => s && onOpenSample(s)}
+                    />
                 </section>
             </div>
+
+            <section className="panel home-section">
+                <h3 className="home-section-title">すべてのサンプル</h3>
+                <p className="home-section-desc">
+                    カテゴリ別に並んでいます。練習をクリアすると ✓ 完了 になります。
+                </p>
+                <SampleList
+                    groupByCategory
+                    showProgress
+                    onSelect={(s) => s && onOpenSample(s)}
+                />
+            </section>
 
             <section className="panel home-section home-recent">
                 <h3 className="home-section-title">最近使ったコード</h3>
@@ -65,6 +161,25 @@ export function HomeView({ onNewProject, onOpenSample, onOpenRecent }) {
                         ))
                     )}
                 </div>
+            </section>
+
+            <section className="panel home-section home-settings">
+                <h3 className="home-section-title">設定</h3>
+                <label className="roadmap-unlock-all roadmap-unlock-all--settings">
+                    <input
+                        type="checkbox"
+                        checked={settings.unlockAll}
+                        onChange={(e) => setUnlockAll(e.target.checked)}
+                    />
+                    すべての章を開放する
+                </label>
+                <button
+                    type="button"
+                    className="home-reset-btn"
+                    onClick={handleResetProgress}
+                >
+                    学習進捗をリセット
+                </button>
             </section>
         </main>
     );
