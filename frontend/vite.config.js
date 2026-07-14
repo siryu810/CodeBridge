@@ -12,9 +12,24 @@ export default defineConfig({
             "@shared": path.resolve(__dirname, "../shared"),
         },
     },
+    optimizeDeps: {
+        include: ["monaco-editor", "@monaco-editor/react"],
+    },
+    worker: {
+        format: "es",
+    },
     build: {
         commonjsOptions: {
             include: [/shared/, /node_modules/],
+        },
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes("monaco-editor")) {
+                        return "monaco-editor";
+                    }
+                },
+            },
         },
     },
     server: {

@@ -22,6 +22,10 @@ import {
 import { findUsedLearningEntries } from "../lib/learning.js";
 import { runCodeOnServer, parseRunResponse } from "../lib/runApi.js";
 import { useLearningProgress } from "../hooks/useLearningProgress.js";
+import {
+    buildEditorMarkersFromErrors,
+    buildEditorMarkersFromWarnings,
+} from "../lib/monacoMarkers.js";
 
 const DEFAULT_RUN_OUTPUT = "「実行」を押すと、コンソールに出力が表示されます。";
 const DEFAULT_ERROR = "エラーがない場合は空です。";
@@ -61,6 +65,7 @@ export function EditorView({
     const [forceStdinVisible, setForceStdinVisible] = useState(false);
     const [modalEntry, setModalEntry] = useState(null);
     const [sidePanel, setSidePanel] = useState(null);
+    const [runErrorMarkers, setRunErrorMarkers] = useState([]);
 
     const { stats } = useLearningProgress();
 
@@ -136,6 +141,21 @@ export function EditorView({
         if (sampleId) setSidePanel("practice");
     }, [sampleId]);
 
+    useEffect(() => {
+        setRunErrorMarkers([]);
+    }, [editorMode]);
+
+    const editorMarkers = useMemo(() => {
+        if (editorMode === "jp2c") {
+            const warnMarkers = buildEditorMarkersFromWarnings(jpConversion?.warnings);
+            return [...warnMarkers, ...runErrorMarkers];
+        }
+        return runErrorMarkers;
+    }, [editorMode, jpConversion?.warnings, runErrorMarkers]);
+
+    const previewLanguage = editorMode === "c2jp" ? "japanese" : "c";
+    const inputLanguage = editorMode === "c2jp" ? "c" : "japanese";
+
     const handleSampleSelect = useCallback(
         (sample) => {
             if (sample) {
@@ -165,6 +185,7 @@ export function EditorView({
             );
             setErrorPanelMode("error");
             setSidePanel("error");
+            setRunErrorMarkers([]);
             return;
         }
 
@@ -173,6 +194,7 @@ export function EditorView({
             setRunError(jpConversion.warnings.map((w) => "⚠ " + (w.messageJa ?? "")).join("\n"));
             setErrorPanelMode("error");
             setSidePanel("error");
+            setRunErrorMarkers(buildEditorMarkersFromWarnings(jpConversion.warnings));
             return;
         }
 
@@ -192,6 +214,12 @@ export function EditorView({
             setRunOutput(parsed.output);
             setRunError(parsed.errorText);
             setErrorPanelMode(parsed.panelMode ?? "error");
+            setRunErrorMarkers(
+                buildEditorMarkersFromErrors(
+                    data?.errors,
+                    isC2jp ? null : jpConversion?.layout
+                )
+            );
             if (parsed.showStdinPanel) setForceStdinVisible(true);
             if (
                 parsed.panelMode &&
@@ -239,6 +267,7 @@ export function EditorView({
                     </button>
                     <span className="ide-toolbar-title">
                         CodeBridge
+                        <span className="app-version"> v0.9.0-rc.1</span>
                         {projectTitle ? ` — ${projectTitle}` : ""}
                     </span>
                     {isSampleContext && (
@@ -332,9 +361,18 @@ export function EditorView({
                                 value={editorCode}
                                 onChange={onEditorCodeChange}
                                 placeholder={inputPlaceholder}
+                                language={inputLanguage}
+                                markers={editorMarkers}
+                                path={
+                                    editorMode === "jp2c"
+                                        ? "codebridge-editor.cbjp"
+                                        : "codebridge-editor.c"
+                                }
                             />
                         }
-                        preview={<CCodePreview code={previewCode} />}
+                        preview={
+                            <CCodePreview code={previewCode} language={previewLanguage} />
+                        }
                     />
 
                     <div className="ide-bottom">

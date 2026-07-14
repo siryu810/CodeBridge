@@ -75,7 +75,14 @@ export function CodeDiffViewer({ userCode, answerCode, result: resultProp }) {
     );
 }
 
-export function CodeCompareModal({ open, onClose, userCode, answerCode, sampleTitle }) {
+export function CodeCompareModal({
+    open,
+    onClose,
+    userCode,
+    answerCode,
+    sampleTitle,
+    language = "japanese",
+}) {
     const handleKeyDown = useCallback(
         (e) => {
             if (e.key === "Escape") onClose?.();
@@ -113,6 +120,8 @@ export function CodeCompareModal({ open, onClose, userCode, answerCode, sampleTi
                     <h3 id="code-diff-modal-title" className="code-diff-modal-title">
                         模範解答と比較
                         {sampleTitle ? ` — ${sampleTitle}` : ""}
+                        {!sampleTitle && language === "c" ? " — C言語" : ""}
+                        {!sampleTitle && language === "japanese" ? " — 日本語" : ""}
                     </h3>
                     <button
                         type="button"

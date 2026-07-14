@@ -1,7 +1,9 @@
 /**
- * 日本語コードの行単位比較（練習モード用）
- * C言語比較は将来拡張
+ * 練習モード向けコード比較（同言語同士）
+ * 日本語回答 ↔ jpCode / C言語回答 ↔ cCode
  */
+
+import { detectPracticeLanguage, getAnswerCodeForLanguage } from "./practiceLanguage.js";
 
 /** @typedef {"same" | "missing" | "extra" | "changed"} DiffRowType */
 
@@ -333,7 +335,7 @@ function collectHints(rows, userCode, answerCode) {
  * @param {string} answerCode
  * @returns {CodeDiffResult}
  */
-export function compareJapaneseCode(userCode, answerCode) {
+export function compareCodeLines(userCode, answerCode) {
     const userTrimmed = String(userCode ?? "").trim();
     const answerTrimmed = String(answerCode ?? "").trim();
 
@@ -342,6 +344,7 @@ export function compareJapaneseCode(userCode, answerCode) {
             rows: [],
             hints: ["コードが空です。問題文を読んで書き始めましょう。"],
             isExactMatch: true,
+            language: "unknown",
         };
     }
 
@@ -359,6 +362,7 @@ export function compareJapaneseCode(userCode, answerCode) {
             rows,
             hints: collectHints(rows, userCode, answerCode),
             isExactMatch: false,
+            language: "unknown",
         };
     }
 
@@ -376,6 +380,7 @@ export function compareJapaneseCode(userCode, answerCode) {
             rows,
             hints: ["模範解答が設定されていません。"],
             isExactMatch: false,
+            language: "unknown",
         };
     }
 
@@ -399,5 +404,32 @@ export function compareJapaneseCode(userCode, answerCode) {
             ? ["模範解答と一致しています。よくできました！"]
             : collectHints(rows, userCode, answerCode),
         isExactMatch,
+        language: "unknown",
+    };
+}
+
+/** @deprecated compareCodeLines を使用。互換のため残す */
+export function compareJapaneseCode(userCode, answerCode) {
+    return compareCodeLines(userCode, answerCode);
+}
+
+/**
+ * 回答言語に合った模範解答と比較する
+ * @param {string} userCode
+ * @param {{ jpCode?: string, cCode?: string }} sample
+ * @param {"japanese"|"c"|"unknown"|"auto"} [language]
+ */
+export function comparePracticeCode(userCode, sample, language = "auto") {
+    /** @type {"japanese"|"c"|"unknown"} */
+    let lang =
+        language && language !== "auto" ? language : detectPracticeLanguage(userCode);
+    if (lang === "unknown") lang = "japanese";
+
+    const answerCode = getAnswerCodeForLanguage(sample, lang);
+    const result = compareCodeLines(userCode, answerCode);
+    return {
+        ...result,
+        language: lang,
+        answerCode,
     };
 }

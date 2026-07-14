@@ -1300,7 +1300,7 @@ body.body--resizing{
 .ide-shell .editor-pane,
 .ide-shell .preview-pane,
 .ide-shell .code-editor,
-.ide-shell .code-editor-input,
+.ide-shell .cb-monaco,
 .ide-shell .panel-c-output .output,
 .ide-shell .ide-pane .output{
     min-height: 0;
@@ -1468,6 +1468,14 @@ body.body--resizing{
 .app-header h1{
     margin: 0;
     font-size: 1.5rem;
+}
+
+.app-version{
+    margin-left: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #9da3b0;
+    vertical-align: middle;
 }
 
 .subtitle{
@@ -1668,37 +1676,100 @@ body.body--resizing{
     background: #1e1e1e;
 }
 
-.code-editor-gutter{
-    flex: 0 0 44px;
-    padding: 14px 8px 14px 12px;
-    text-align: right;
-    user-select: none;
+/* Monaco エディタ本体 */
+.cb-monaco{
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
-    color: #858585;
-    background: #1e1e1e;
-    border-right: 1px solid rgba(255,255,255,0.06);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 15px;
-    line-height: 1.6;
-    white-space: pre;
+    position: relative;
 }
 
-.code-editor-input{
+.cb-monaco .monaco-editor,
+.cb-monaco .overflow-guard{
+    border-radius: 0;
+}
+
+.cb-monaco-loading{
+    padding: 16px;
+    color: #9da3b0;
+    font-size: 13px;
+}
+
+.cb-monaco-fallback{
+    display: flex;
+    flex-direction: column;
     flex: 1;
+    min-height: 0;
+    height: 100%;
+    background: #1e1e1e;
+    border: 1px solid rgba(248, 81, 73, 0.35);
+}
+
+.cb-monaco-fallback-msg{
+    margin: 0;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #ffaba8;
+    background: rgba(248, 81, 73, 0.1);
+    border-bottom: 1px solid rgba(248, 81, 73, 0.25);
+}
+
+.cb-monaco-fallback-hint{
+    color: #9da3b0;
+}
+
+.cb-monaco-fallback-textarea{
+    flex: 1;
+    min-height: 160px;
     width: 100%;
-    min-height: 100%;
+    box-sizing: border-box;
     border: none;
     outline: none;
     resize: none;
-    overflow: auto;
+    padding: 12px;
     background: #1e1e1e;
     color: #d4d4d4;
-    caret-color: #aeafad;
-    font-size: 15px;
-    line-height: 1.6;
-    padding: 14px 14px 14px 8px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     tab-size: 4;
+}
+
+.code-editor--monaco,
+.code-preview--monaco{
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #1e1e1e;
+}
+
+.ide-pane .code-editor--monaco,
+.ide-pane .code-preview--monaco,
+.ide-pane .cb-monaco{
+    min-height: 0;
+    height: 100%;
+}
+
+.practice-code-editor{
+    min-height: 220px;
+    height: 240px;
+    margin-top: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.practice-code-editor .cb-monaco,
+.practice-code-editor .cb-monaco-fallback{
+    min-height: 220px;
 }
 
 /* VSCode風パネル共通スタイル */
@@ -2160,6 +2231,54 @@ body.body--resizing{
     font-size: 13px;
     line-height: 1.5;
     resize: vertical;
+}
+
+.practice-lang-row{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.practice-lang-switch{
+    display: inline-flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.practice-lang-btn{
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9da3b0;
+    background: #2d2d2d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.practice-lang-btn.is-active{
+    color: #4fc1ff;
+    border-color: rgba(79, 193, 255, 0.45);
+    background: rgba(79, 193, 255, 0.1);
+}
+
+.practice-lang-note{
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #8b949e;
+}
+
+.practice-feedback-message{
+    margin: 0;
+}
+
+.practice-success-actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 .practice-stdin{

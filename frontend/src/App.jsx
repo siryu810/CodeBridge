@@ -111,7 +111,12 @@ export default function App() {
 
                             <div>
 
-                                <h1>CodeBridge</h1>
+                                <h1>
+                                    CodeBridge{" "}
+                                    <span className="app-version" title="Release Candidate">
+                                        v0.9.0-rc.1
+                                    </span>
+                                </h1>
 
                                 <p className="subtitle">
 

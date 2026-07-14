@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import "./lib/monacoSetup.js";
 import App from "./App.jsx";
 import "./App.css";
 

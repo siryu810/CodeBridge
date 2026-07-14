@@ -265,6 +265,29 @@ check("IDE 固定レイアウトが React に存在する", () => {
     assertIncludes(css, "flex: 0 0 auto", "下部パネル自然配置");
 });
 
+check("Monaco エディタが React に存在する", () => {
+    assertIncludes(
+        read("frontend/src/components/CodeBridgeMonaco.jsx"),
+        "@monaco-editor/react",
+        "monaco react"
+    );
+    assertIncludes(
+        read("frontend/src/lib/monacoCodebridgeJp.js"),
+        "codebridge-jp",
+        "jp language"
+    );
+    assertIncludes(
+        read("frontend/src/components/JapaneseEditor.jsx"),
+        "CodeBridgeMonaco",
+        "editor monaco"
+    );
+    assertIncludes(
+        read("frontend/src/components/CCodePreview.jsx"),
+        "readOnly",
+        "preview readonly"
+    );
+});
+
 check("命令辞書モーダルが React に存在する", () => {
     assertIncludes(read("frontend/src/components/CommandDictionaryModal.jsx"), "dict-modal", "モーダル");
     assertIncludes(read("frontend/src/components/LearningPanel.jsx"), "onSelectEntry", "クリック");

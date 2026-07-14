@@ -2,6 +2,8 @@
 
 日本語で C 言語を学ぶ、初学者向け学習 IDE。
 
+**Version: `0.9.0-rc.1`**（U-22 提出向け Release Candidate）
+
 ---
 
 ## 目次
@@ -14,6 +16,7 @@
 - [サンプル教材](#サンプル教材)
 - [使い方](#使い方)
 - [デモ・発表](#デモ発表)
+- [提出前確認](#提出前確認)
 - [品質確認](#品質確認)
 - [技術構成](#技術構成)
 - [今後の展望](#今後の展望)
@@ -35,27 +38,38 @@ CodeBridge は「翻訳ツール」ではなく、**考え方を学ぶための�
 
 ## スクリーンショット
 
-> 発表・GitHub 公開用に、以下の画像を `docs/images/` に追加してください。
+> 画像の撮り方・配置は **[docs/images/README.md](docs/images/README.md)** を参照してください。  
+> 撮影後、下のコメントを外して表示できます。フォルダ: **[docs/images/](docs/images/)**
 
 ### ホーム画面
 
 <!-- ![CodeBridge ホーム画面](docs/images/home.png) -->
-`docs/images/home.png` — 学習進捗・ロードマップ・サンプル一覧
+`docs/images/home.png` — 学習進捗・次に学ぶ・ロードマップ
 
 ### IDE 画面（日本語 → C 言語）
 
-<!-- ![IDE 日本語モード](docs/images/ide-jp2c.png) -->
-`docs/images/ide-jp2c.png` — エディタ・変換結果・コンソール
+<!-- ![IDE 日本語モード](docs/images/editor-jp-to-c.png) -->
+`docs/images/editor-jp-to-c.png` — 日本語コード・変換結果・コンソール
 
-### 練習モード・コード比較
+### 練習モード
 
-<!-- ![練習と比較](docs/images/practice-compare.png) -->
-`docs/images/practice-compare.png` — 練習パネルと模範解答との比較
+<!-- ![練習モード](docs/images/practice-mode.png) -->
+`docs/images/practice-mode.png` — 問題・ヒント・答え合わせ
+
+### コード比較
+
+<!-- ![コード比較](docs/images/code-compare.png) -->
+`docs/images/code-compare.png` — 模範解答との差分
+
+### 学習ロードマップ
+
+<!-- ![ロードマップ](docs/images/learning-roadmap.png) -->
+`docs/images/learning-roadmap.png` — 章一覧と進捗
 
 ### デモ GIF（任意）
 
 <!-- ![操作デモ](docs/images/demo.gif) -->
-`docs/images/demo.gif` — 変換 → 実行 → 練習クリアの流れ（5〜15秒程度）
+`docs/images/demo.gif` — 変換 → 実行 → 練習の流れ
 
 ---
 
@@ -82,12 +96,13 @@ CodeBridge は、これらの課題に対して **日本語という身近な言
 | 実行時入力 | `scanf` / `入力()` に対応した標準入力 |
 | コンソール表示 | 実行結果を見やすく表示 |
 | 日本語エラー表示 | コンパイルエラーを初学者向けに説明 |
+| Monaco エディタ | 構文ハイライト・括弧補完・検索（**ローカルバンドル・オフライン可**） |
 | 命令辞書 | 使える日本語命令の一覧と意味 |
 | 学習モード | アルゴリズムの流れをステップで確認 |
-| 練習モード | 各サンプルに練習問題・ヒント・解説 |
-| 模範解答とのコード比較 | 自分の回答と模範解答を並べて確認 |
+| 練習モード | 日本語・C言語いずれでも回答可 |
+| 模範解答とのコード比較 | 同言語どうしで差分を確認 |
 | 学習進捗 | クリア状況・カテゴリ別の進捗を記録（localStorage） |
-| 学習ロードマップ | 9 章構成の学習コース（順番に章が開放） |
+| 学習ロードマップ | 9 章構成の学習コース |
 | サンプル教材 24 件 | 表示から乱数まで段階的に学べる題材 |
 
 ---
@@ -199,7 +214,24 @@ http://localhost:3000 で配信されます。
 
 ## デモ・発表
 
-5 分程度の発表用デモ手順は **[docs/demo.md](docs/demo.md)** にまとめています。
+| ドキュメント | 内容 |
+|--------------|------|
+| **[docs/demo.md](docs/demo.md)** | 約 5 分の発表デモ手順 |
+| **[docs/offline-test.md](docs/offline-test.md)** | Offline 実機確認（Monaco ローカル） |
+| **[docs/final-demo-check.md](docs/final-demo-check.md)** | 代表 4 サンプルの手動チェック |
+| **[docs/release-checklist.md](docs/release-checklist.md)** | GitHub リリース準備 |
+
+---
+
+## 提出前確認
+
+```powershell
+npm run final:check
+```
+
+`check`・ビルド・CDN 検査・サンプル／ロードマップ検証・docs／README リンク確認をまとめて実行します。
+
+オフライン確認・代表サンプル確認は上記 docs のチェックリストに従って手動で行ってください。
 
 ---
 
@@ -217,6 +249,7 @@ npm run check
 | コード比較テスト | 模範解答との差分表示 |
 | ロードマップ検証 | 章定義・sampleId の整合性 |
 | サンプル検証 | 全 24 件のコンパイル・実行・期待出力 |
+| Monaco オフライン検査 | CDN URL 非依存の静的確認 |
 | 構文チェック | 主要ソースファイル |
 | ビルド | フロントエンド本番ビルド |
 
@@ -232,7 +265,7 @@ npm test   # テストのみ
 
 | 分野 | 技術 |
 |------|------|
-| フロントエンド | React、Vite |
+| フロントエンド | React、Vite、Monaco Editor（ローカルバンドル） |
 | バックエンド | Node.js、Express |
 | 実行環境 | gcc |
 | データ保存 | localStorage |
@@ -246,7 +279,7 @@ CodeBridge/
   shared/            変換エンジン・サンプル・ロードマップ
   server.js          Express + gcc 実行 API
   scripts/           開発・検証スクリプト
-  docs/              デモ手順・サンプルテンプレート
+  docs/              デモ・オフライン確認・提出チェック
 ```
 
 サンプル追加は [docs/sample-template.md](docs/sample-template.md) を参照してください。
