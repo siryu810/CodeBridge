@@ -113,6 +113,69 @@ export function validatePracticeSchema(practice, sampleId) {
         });
     }
 
+    if (
+        practice.outputPolicy != null &&
+        !["flexible", "strict", "exact"].includes(practice.outputPolicy)
+    ) {
+        issues.push({
+            sampleId: sid,
+            level: "error",
+            message: `practice.outputPolicy が不正です: ${practice.outputPolicy}`,
+            check: "practice",
+        });
+    }
+
+    if (practice.testCases != null) {
+        if (!Array.isArray(practice.testCases)) {
+            issues.push({
+                sampleId: sid,
+                level: "error",
+                message: "practice.testCases が配列ではありません",
+                check: "practice",
+            });
+        } else if (practice.testCases.length === 0) {
+            issues.push({
+                sampleId: sid,
+                level: "warning",
+                message: "practice.testCases が空です",
+                check: "practice",
+            });
+        } else {
+            for (const [index, tc] of practice.testCases.entries()) {
+                if (!tc || typeof tc !== "object") {
+                    issues.push({
+                        sampleId: sid,
+                        level: "error",
+                        message: `practice.testCases[${index}] が不正です`,
+                        check: "practice",
+                    });
+                    continue;
+                }
+                if (typeof tc.stdin !== "string") {
+                    issues.push({
+                        sampleId: sid,
+                        level: "error",
+                        message: `practice.testCases[${index}].stdin が文字列ではありません`,
+                        check: "practice",
+                    });
+                }
+                if (
+                    tc.expectedOutput == null ||
+                    typeof tc.expectedOutput !== "object" ||
+                    (!Array.isArray(tc.expectedOutput.includes) &&
+                        !Array.isArray(tc.expectedOutput.oneOf))
+                ) {
+                    issues.push({
+                        sampleId: sid,
+                        level: "error",
+                        message: `practice.testCases[${index}].expectedOutput が不正です`,
+                        check: "practice",
+                    });
+                }
+            }
+        }
+    }
+
     return issues;
 }
 

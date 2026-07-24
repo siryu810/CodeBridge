@@ -151,27 +151,17 @@ export default function App() {
             ) : (
 
                 <EditorView
-
+                    key={sampleId ? `sample-${sampleId}` : `project-${projectTitle || "new"}`}
                     jpCode={jpCode}
-
                     cCode={cCode}
-
                     onJpCodeChange={setJpCode}
-
                     onCCodeChange={setCCode}
-
                     onOpenSample={handleOpenSample}
-
                     onBackHome={() => setView("home")}
-
                     projectTitle={projectTitle}
-
                     sampleId={sampleId}
-
                     serverConnected={connected}
-
                     serverChecked={checked}
-
                 />
 
             )}

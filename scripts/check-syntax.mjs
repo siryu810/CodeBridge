@@ -17,11 +17,14 @@ const files = [
     "frontend/src/lib/progress.js",
     "frontend/src/lib/codeDiff.js",
     "frontend/src/lib/practice.js",
+    "frontend/src/lib/outputMatch.js",
     "frontend/src/lib/practiceLanguage.js",
     "frontend/src/lib/editorAssist.js",
     "frontend/src/lib/monacoCodebridgeJp.js",
     "frontend/src/lib/monacoMarkers.js",
     "frontend/src/lib/monacoSetup.js",
+    "frontend/src/lib/terminalFormat.js",
+    "frontend/src/hooks/useBottomPanel.js",
     "test-practice.mjs",
     "test-editor-assist.mjs",
     "test-monaco-lang.mjs",
@@ -35,6 +38,7 @@ const files = [
     "shared/sampleManager.js",
     "scripts/validate-samples.mjs",
     "scripts/final-check.mjs",
+    "scripts/feature-freeze-check.mjs",
     "shared/sampleSchema.js",
 ];
 

@@ -9,9 +9,10 @@
     "dev:client": "npm run dev --prefix frontend",
     "dev": "node scripts/dev.mjs",
     "build": "npm run build --prefix frontend",
-    "test": "node test-convert.mjs && node test-regression.mjs && node test-run.mjs && node test-code-diff.mjs && node test-roadmap.mjs && node test-practice.mjs && node test-editor-assist.mjs && node test-monaco-lang.mjs && node test-monaco-offline.mjs && node scripts/validate-samples.mjs",
+    "test": "node test-convert.mjs && node test-regression.mjs && node test-run.mjs && node test-code-diff.mjs && node test-roadmap.mjs && node test-practice.mjs && node test-editor-assist.mjs && node test-monaco-lang.mjs && node test-monaco-offline.mjs && node test-terminal-format.mjs && node scripts/validate-samples.mjs",
     "check": "npm test && node scripts/check-syntax.mjs && npm run build",
     "final:check": "node scripts/final-check.mjs",
+    "freeze:check": "node scripts/feature-freeze-check.mjs",
     "validate-samples": "node scripts/validate-samples.mjs"
   },
   "keywords": [],

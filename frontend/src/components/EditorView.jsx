@@ -1,7 +1,6 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { JapaneseEditor } from "./JapaneseEditor.jsx";
 import { CCodePreview } from "./CCodePreview.jsx";
-import { RuntimeInput } from "./RuntimeInput.jsx";
 import { LearningPanel } from "./LearningPanel.jsx";
 import { PracticePanel } from "./PracticePanel.jsx";
 import { DictionaryPanel } from "./DictionaryPanel.jsx";
@@ -10,7 +9,12 @@ import { SampleList } from "./SampleList.jsx";
 import { ServerStatusIndicator } from "./ServerStatusIndicator.jsx";
 import { IdeSideRail, IdeSlidePanel } from "./IdeSidePanel.jsx";
 import { IdeWorkspaceSplit } from "./IdeWorkspaceSplit.jsx";
+import { IdeBottomPanel } from "./IdeBottomPanel.jsx";
+import { IdeLayout } from "./IdeLayout.jsx";
 import { useIdeLayout } from "../hooks/useIdeLayout.js";
+import {
+    loadBottomPanelState,
+} from "../hooks/useBottomPanel.js";
 import { CODEBRIDGE_SAMPLES } from "../data/samples.js";
 import {
     convertJapaneseSource,
@@ -26,9 +30,12 @@ import {
     buildEditorMarkersFromErrors,
     buildEditorMarkersFromWarnings,
 } from "../lib/monacoMarkers.js";
+import {
+    buildRunTerminalLines,
+} from "../lib/terminalFormat.js";
 
-const DEFAULT_RUN_OUTPUT = "「実行」を押すと、コンソールに出力が表示されます。";
 const DEFAULT_ERROR = "エラーがない場合は空です。";
+const STDIN_STORAGE_KEY = "codebridge-ide-stdin-v1";
 
 const SIDE_PANEL_TITLES = {
     practice: "練習モード",
@@ -44,6 +51,14 @@ function hasActiveError(runError, errorPanelMode) {
     return true;
 }
 
+function loadSavedStdin() {
+    try {
+        return localStorage.getItem(STDIN_STORAGE_KEY) ?? "";
+    } catch {
+        return "";
+    }
+}
+
 export function EditorView({
     jpCode,
     cCode,
@@ -57,8 +72,7 @@ export function EditorView({
     serverChecked = false,
 }) {
     const [editorMode, setEditorMode] = useState("jp2c");
-    const [stdin, setStdin] = useState("");
-    const [runOutput, setRunOutput] = useState(DEFAULT_RUN_OUTPUT);
+    const [stdin, setStdin] = useState(() => loadSavedStdin());
     const [runError, setRunError] = useState(DEFAULT_ERROR);
     const [errorPanelMode, setErrorPanelMode] = useState("error");
     const [isRunning, setIsRunning] = useState(false);
@@ -67,6 +81,21 @@ export function EditorView({
     const [sidePanel, setSidePanel] = useState(null);
     const [runErrorMarkers, setRunErrorMarkers] = useState([]);
 
+    const initialBottom = useMemo(() => loadBottomPanelState(), []);
+    const [bottomOpen, setBottomOpen] = useState(initialBottom.open);
+    const [bottomCollapsed, setBottomCollapsed] = useState(initialBottom.collapsed);
+    const [bottomMaximized, setBottomMaximized] = useState(initialBottom.maximized);
+    const [bottomHeight, setBottomHeight] = useState(initialBottom.height);
+    const [bottomTab, setBottomTab] = useState(initialBottom.activeTab);
+    const [outputLines, setOutputLines] = useState(
+        /** @type {Array<{ kind: string, text: string }>} */ ([])
+    );
+    const [outputStatus, setOutputStatus] = useState(
+        /** @type {"idle"|"running"|"waiting"|"ready"|"error"} */ ("idle")
+    );
+
+    const editorApiRef = useRef(null);
+    const stdinInputRef = useRef(null);
     const { stats } = useLearningProgress();
 
     const {
@@ -78,6 +107,33 @@ export function EditorView({
         showPreview,
         hidePreview,
     } = useIdeLayout("beginner");
+
+    const [practiceVisibility, setPracticeVisibility] = useState(
+        /** @type {"guided" | "blind"} */ ("guided")
+    );
+    const bottomBeforeBlindRef = useRef(true);
+    const bottomOpenRef = useRef(bottomOpen);
+    bottomOpenRef.current = bottomOpen;
+
+    const handlePracticeVisibilityChange = useCallback(
+        (mode) => {
+            setPracticeVisibility(mode);
+            if (mode === "blind") {
+                hidePreview();
+                bottomBeforeBlindRef.current = bottomOpenRef.current;
+                setBottomOpen(false);
+                setBottomMaximized(false);
+                setSidePanel((prev) => (prev === "practice" ? null : prev));
+            } else {
+                showPreview();
+                setBottomOpen(bottomBeforeBlindRef.current);
+                setSidePanel("practice");
+            }
+        },
+        [hidePreview, showPreview]
+    );
+
+    const isBlindPractice = Boolean(sampleId) && practiceVisibility === "blind";
 
     const editorCode = editorMode === "jp2c" ? jpCode : cCode;
     const onEditorCodeChange = editorMode === "jp2c" ? onJpCodeChange : onCCodeChange;
@@ -132,19 +188,6 @@ export function EditorView({
 
     const errorClassName = errorPanelMode === "input_wait" ? "run-input-wait" : "run-error";
 
-    useEffect(() => {
-        document.body.classList.add("body--ide");
-        return () => document.body.classList.remove("body--ide");
-    }, []);
-
-    useEffect(() => {
-        if (sampleId) setSidePanel("practice");
-    }, [sampleId]);
-
-    useEffect(() => {
-        setRunErrorMarkers([]);
-    }, [editorMode]);
-
     const editorMarkers = useMemo(() => {
         if (editorMode === "jp2c") {
             const warnMarkers = buildEditorMarkersFromWarnings(jpConversion?.warnings);
@@ -153,8 +196,53 @@ export function EditorView({
         return runErrorMarkers;
     }, [editorMode, jpConversion?.warnings, runErrorMarkers]);
 
+    useEffect(() => {
+        document.body.classList.add("body--ide");
+        return () => document.body.classList.remove("body--ide");
+    }, []);
+
+    // 新規作成・サンプル・再入場のいずれでも、同じ Bottom Panel を開いた状態で開始
+    useEffect(() => {
+        setBottomOpen(true);
+        setBottomCollapsed(false);
+    }, [sampleId, projectTitle]);
+
+    useEffect(() => {
+        if (sampleId) setSidePanel("practice");
+        else {
+            setSidePanel(null);
+            setPracticeVisibility("guided");
+            showPreview();
+        }
+    }, [sampleId, showPreview]);
+
+    useEffect(() => {
+        setRunErrorMarkers([]);
+    }, [editorMode]);
+
+    useEffect(() => {
+        if (serverConnected) {
+            setOutputStatus((prev) => (prev === "idle" || prev === "ready" ? "ready" : prev));
+        }
+    }, [serverConnected]);
+
+    useEffect(() => {
+        const onResize = () => {
+            const max = Math.floor(window.innerHeight * 0.8);
+            setBottomHeight((h) => Math.min(h, Math.max(80, max)));
+        };
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+
     const previewLanguage = editorMode === "c2jp" ? "japanese" : "c";
     const inputLanguage = editorMode === "c2jp" ? "c" : "japanese";
+
+    const openBottomForRun = useCallback(() => {
+        setBottomOpen(true);
+        setBottomCollapsed(false);
+        setBottomTab("output");
+    }, []);
 
     const handleSampleSelect = useCallback(
         (sample) => {
@@ -166,8 +254,41 @@ export function EditorView({
         [onOpenSample]
     );
 
-    const toggleSidePanel = useCallback((id) => {
-        setSidePanel((prev) => (prev === id ? null : id));
+    const toggleSidePanel = useCallback(
+        (id) => {
+            if (id === "practice" && practiceVisibility === "blind") {
+                handlePracticeVisibilityChange("guided");
+                return;
+            }
+            setSidePanel((prev) => (prev === id ? null : id));
+        },
+        [practiceVisibility, handlePracticeVisibilityChange]
+    );
+
+    const handleClearOutput = useCallback(() => {
+        setOutputLines([]);
+        setOutputStatus(serverConnected ? "ready" : "idle");
+    }, [serverConnected]);
+
+    const handleStdinSave = useCallback(() => {
+        try {
+            localStorage.setItem(STDIN_STORAGE_KEY, stdin);
+        } catch {
+            /* ignore */
+        }
+    }, [stdin]);
+
+    const handleStdinClear = useCallback(() => {
+        setStdin("");
+        try {
+            localStorage.removeItem(STDIN_STORAGE_KEY);
+        } catch {
+            /* ignore */
+        }
+    }, []);
+
+    const openSideError = useCallback(() => {
+        setSidePanel("error");
     }, []);
 
     const handleRun = useCallback(async () => {
@@ -176,42 +297,82 @@ export function EditorView({
             ? (cCode ?? "").trim()
             : (jpConversion?.program ?? "").trim();
 
+        openBottomForRun();
+
         if (!codeToRun) {
-            setRunOutput("（コードがありません）");
+            setOutputLines([
+                { kind: "error", text: "（コードがありません）" },
+                {
+                    kind: "meta",
+                    text: isC2jp
+                        ? "C言語エディタにコードを書いてください。"
+                        : "日本語Cエディタにコードを書くか、サンプルを選んでください。",
+                },
+            ]);
             setRunError(
                 isC2jp
                     ? "C言語エディタにコードを書いてください。"
                     : "日本語Cエディタにコードを書くか、サンプルを選んでください。"
             );
             setErrorPanelMode("error");
-            setSidePanel("error");
+            setOutputStatus("error");
+            setBottomTab("output");
             setRunErrorMarkers([]);
+            openSideError();
             return;
         }
 
         if (!isC2jp && (jpConversion?.warnings?.length ?? 0) > 0) {
-            setRunOutput("（変換の警告があります — 実行前に確認してください）");
-            setRunError(jpConversion.warnings.map((w) => "⚠ " + (w.messageJa ?? "")).join("\n"));
+            const warnText = jpConversion.warnings
+                .map((w) => "⚠ " + (w.messageJa ?? ""))
+                .join("\n");
+            setOutputLines([
+                { kind: "meta", text: "実行開始..." },
+                { kind: "error", text: "（変換の警告があります — 実行前に確認してください）" },
+                ...warnText.split("\n").map((t) => ({ kind: "error", text: t })),
+            ]);
+            setRunError(warnText);
             setErrorPanelMode("error");
-            setSidePanel("error");
+            setOutputStatus("error");
+            setBottomTab("output");
             setRunErrorMarkers(buildEditorMarkersFromWarnings(jpConversion.warnings));
+            openSideError();
             return;
         }
 
         setIsRunning(true);
-        setRunOutput("コンパイル・実行中...");
+        setOutputStatus("running");
+        setOutputLines(buildRunTerminalLines({ isStart: true }));
         setRunError("");
         setErrorPanelMode("error");
 
+        const startedAt = performance.now();
+
         try {
             const data = await runCodeOnServer(codeToRun, stdin);
+            const elapsedMs = Math.round(performance.now() - startedAt);
             const parsed = parseRunResponse(
                 data,
                 isC2jp ? null : jpConversion?.layout,
                 jpLines,
                 formatErrors
             );
-            setRunOutput(parsed.output);
+
+            const consoleText =
+                data?.consoleOutput != null && String(data.consoleOutput).length > 0
+                    ? String(data.consoleOutput)
+                    : parsed.output;
+
+            setOutputLines(
+                buildRunTerminalLines({
+                    consoleText,
+                    status: data?.status ?? parsed.panelMode,
+                    exitCode: data?.exitCode ?? null,
+                    elapsedMs,
+                    errorText: parsed.errorText,
+                })
+            );
+
             setRunError(parsed.errorText);
             setErrorPanelMode(parsed.panelMode ?? "error");
             setRunErrorMarkers(
@@ -220,28 +381,44 @@ export function EditorView({
                     isC2jp ? null : jpConversion?.layout
                 )
             );
-            if (parsed.showStdinPanel) setForceStdinVisible(true);
-            if (
+
+            if (parsed.showStdinPanel) {
+                setForceStdinVisible(true);
+                setOutputStatus("waiting");
+                setBottomTab("input");
+                window.setTimeout(() => stdinInputRef.current?.focus?.(), 50);
+            } else if (
                 parsed.panelMode &&
                 parsed.panelMode !== "success" &&
                 parsed.errorText &&
                 parsed.errorText !== "（エラーなし）"
             ) {
-                setSidePanel("error");
+                setOutputStatus("error");
+                setBottomTab("output");
+                openSideError();
+            } else {
+                setOutputStatus("ready");
+                setBottomTab("output");
             }
         } catch (err) {
-            setRunOutput("（通信失敗）");
-            setRunError(
+            const msg =
                 "サーバーと通信できませんでした。\n\n" +
-                    String(err.message || err) +
-                    "\n\nターミナルで npm run dev を実行してください。"
-            );
+                String(err.message || err) +
+                "\n\nターミナルで npm run dev を実行してください。";
+            setOutputLines([
+                { kind: "meta", text: "実行開始..." },
+                { kind: "error", text: "（通信失敗）" },
+                ...msg.split("\n").map((t) => ({ kind: "error", text: t })),
+            ]);
+            setRunError(msg);
             setErrorPanelMode("error");
-            setSidePanel("error");
+            setOutputStatus("error");
+            setBottomTab("output");
+            openSideError();
         } finally {
             setIsRunning(false);
         }
-    }, [editorMode, cCode, jpConversion, stdin, jpLines]);
+    }, [editorMode, cCode, jpConversion, stdin, jpLines, openBottomForRun, openSideError]);
 
     const inputTitle = editorMode === "c2jp" ? "C言語エディタ" : "日本語Cエディタ";
     const outputTitle =
@@ -254,7 +431,10 @@ export function EditorView({
         editorMode === "c2jp" ? (cConversion?.program ?? "") : (jpConversion?.program ?? "");
 
     return (
-        <div className="ide-shell">
+        <IdeLayout
+            bottomMaximized={bottomMaximized}
+            bottomOpen={bottomOpen}
+            toolbar={
             <header className="ide-toolbar">
                 <div className="ide-toolbar-left">
                     <button
@@ -304,10 +484,16 @@ export function EditorView({
                     {isSampleContext && (
                         <button
                             type="button"
-                            className={`ide-toolbar-btn ide-toolbar-btn--practice${sidePanel === "practice" ? " is-active" : ""}`}
+                            className={`ide-toolbar-btn ide-toolbar-btn--practice${
+                                sidePanel === "practice" || isBlindPractice ? " is-active" : ""
+                            }`}
                             onClick={() => toggleSidePanel("practice")}
-                            title="練習モードを開く"
-                            aria-pressed={sidePanel === "practice"}
+                            title={
+                                isBlindPractice
+                                    ? "見ながら練習に戻る"
+                                    : "練習モードを開く"
+                            }
+                            aria-pressed={sidePanel === "practice" || isBlindPractice}
                         >
                             練習
                         </button>
@@ -315,111 +501,173 @@ export function EditorView({
                 </div>
 
                 <div className="ide-toolbar-right">
-                    <button
-                        type="button"
-                        className={`ide-toolbar-btn${previewVisible ? " is-active" : ""}`}
-                        onClick={togglePreview}
-                        title="変換結果パネルの表示・非表示"
-                        aria-pressed={previewVisible}
-                    >
-                        変換結果
-                    </button>
+                    {!isBlindPractice && (
+                        <button
+                            type="button"
+                            className={`ide-toolbar-btn${previewVisible ? " is-active" : ""}`}
+                            onClick={togglePreview}
+                            title="変換結果パネルの表示・非表示"
+                            aria-pressed={previewVisible}
+                        >
+                            変換結果
+                        </button>
+                    )}
+                    {!bottomOpen && !isBlindPractice && (
+                        <button
+                            type="button"
+                            className="ide-toolbar-btn"
+                            onClick={() => {
+                                setBottomOpen(true);
+                                setBottomCollapsed(false);
+                            }}
+                            title="実行パネルを表示"
+                        >
+                            パネル
+                        </button>
+                    )}
                     <ServerStatusIndicator connected={serverConnected} checked={serverChecked} />
-                    <button
-                        type="button"
-                        className="run-button"
-                        onClick={handleRun}
-                        disabled={isRunning}
-                    >
-                        ▶ 実行
-                    </button>
+                    {!isBlindPractice && (
+                        <button
+                            type="button"
+                            className="run-button"
+                            onClick={handleRun}
+                            disabled={isRunning}
+                        >
+                            ▶ 実行
+                        </button>
+                    )}
                 </div>
             </header>
-
-            <div className="ide-main">
-                {sidePanel && (
+            }
+            sideBackdrop={
+                sidePanel ? (
                     <button
                         type="button"
                         className="ide-slide-backdrop"
                         aria-label="パネルを閉じる"
                         onClick={() => setSidePanel(null)}
                     />
-                )}
-
-                <div className="ide-center">
-                    <IdeWorkspaceSplit
-                        editorTitle={inputTitle}
-                        previewTitle={outputTitle}
-                        previewVisible={previewVisible}
-                        previewPercent={previewPercent}
-                        setPreviewPercent={setPreviewPercent}
-                        setPreviewVisible={setPreviewVisible}
-                        onHidePreview={hidePreview}
-                        onShowPreview={showPreview}
-                        editor={
-                            <JapaneseEditor
-                                value={editorCode}
-                                onChange={onEditorCodeChange}
-                                placeholder={inputPlaceholder}
-                                language={inputLanguage}
-                                markers={editorMarkers}
-                                path={
-                                    editorMode === "jp2c"
-                                        ? "codebridge-editor.cbjp"
-                                        : "codebridge-editor.c"
-                                }
-                            />
-                        }
-                        preview={
-                            <CCodePreview code={previewCode} language={previewLanguage} />
-                        }
-                    />
-
-                    <div className="ide-bottom">
-                        <section className="console-panel">
-                            <div className="panel-header ide-console-header">
-                                ③ コンソール
-                                {errorBadge && (
-                                    <button
-                                        type="button"
-                                        className="ide-console-error-link"
-                                        onClick={() => toggleSidePanel("error")}
-                                    >
-                                        エラーあり
-                                        <span className="ide-rail-badge" />
-                                    </button>
-                                )}
-                            </div>
-                            <pre className="run-output run-console console-output">{runOutput}</pre>
-                        </section>
-
-                        <RuntimeInput
-                            value={stdin}
-                            onChange={setStdin}
-                            visible={needsStdin}
-                            embedded
+                ) : null
+            }
+            centerCollapsed={isBlindPractice}
+            workspace={
+                <IdeWorkspaceSplit
+                    editorTitle={inputTitle}
+                    previewTitle={outputTitle}
+                    previewVisible={previewVisible}
+                    previewPercent={previewPercent}
+                    setPreviewPercent={setPreviewPercent}
+                    setPreviewVisible={setPreviewVisible}
+                    onHidePreview={hidePreview}
+                    onShowPreview={showPreview}
+                    editor={
+                        <JapaneseEditor
+                            value={editorCode}
+                            onChange={onEditorCodeChange}
+                            placeholder={inputPlaceholder}
+                            language={inputLanguage}
+                            markers={editorMarkers}
+                            editorApiRef={editorApiRef}
+                            path={
+                                editorMode === "jp2c"
+                                    ? "codebridge-editor.cbjp"
+                                    : "codebridge-editor.c"
+                            }
                         />
+                    }
+                    preview={
+                        <CCodePreview code={previewCode} language={previewLanguage} />
+                    }
+                />
+            }
+            bottomPanel={
+                isBlindPractice ? null : (
+                <IdeBottomPanel
+                    open={bottomOpen}
+                    height={bottomHeight}
+                    onHeightChange={setBottomHeight}
+                    collapsed={bottomCollapsed}
+                    maximized={bottomMaximized}
+                    onToggleCollapse={() => {
+                        setBottomCollapsed((v) => !v);
+                        if (bottomMaximized) setBottomMaximized(false);
+                    }}
+                    onToggleMaximize={() => {
+                        setBottomMaximized((v) => !v);
+                        setBottomCollapsed(false);
+                        setBottomOpen(true);
+                    }}
+                    onClose={() => {
+                        setBottomOpen(false);
+                        setBottomMaximized(false);
+                    }}
+                    onClearOutput={handleClearOutput}
+                    activeTab={bottomTab}
+                    onTabChange={setBottomTab}
+                    outputStatus={
+                        isRunning
+                            ? "running"
+                            : outputStatus === "idle" && serverConnected
+                              ? "ready"
+                              : outputStatus
+                    }
+                    outputLines={outputLines}
+                    stdin={stdin}
+                    onStdinChange={setStdin}
+                    onStdinClear={handleStdinClear}
+                    onStdinSave={handleStdinSave}
+                    needsStdin={needsStdin}
+                    inputRef={stdinInputRef}
+                />
+                )
+            }
+            practiceHost={
+                isSampleContext ? (
+                    <div
+                        className={`practice-host${
+                            isBlindPractice
+                                ? " practice-host--focus"
+                                : " practice-host--slide"
+                        }${
+                            isBlindPractice || sidePanel === "practice" ? " is-open" : ""
+                        }`}
+                    >
+                        {!isBlindPractice && (
+                            <div className="practice-host-header">
+                                <h2 className="practice-host-title">
+                                    {SIDE_PANEL_TITLES.practice}
+                                </h2>
+                                <button
+                                    type="button"
+                                    className="practice-host-close"
+                                    onClick={() => setSidePanel(null)}
+                                    aria-label="パネルを閉じる"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        )}
+                        <div className="practice-host-body">
+                            <PracticePanel
+                                embedded
+                                layout={isBlindPractice ? "focus" : "side"}
+                                activeSample={activeSample}
+                                onVisibilityModeChange={handlePracticeVisibilityChange}
+                            />
+                        </div>
                     </div>
-                </div>
-
+                ) : null
+            }
+            sideRail={
                 <IdeSideRail
-                    activePanel={sidePanel}
+                    activePanel={isBlindPractice ? "practice" : sidePanel}
                     onToggle={toggleSidePanel}
                     hasErrorBadge={errorBadge}
                     showPractice={isSampleContext}
                 />
-
-                <IdeSlidePanel
-                    open={sidePanel === "practice"}
-                    title={SIDE_PANEL_TITLES.practice}
-                    onClose={() => setSidePanel(null)}
-                >
-                    <PracticePanel
-                        embedded
-                        activeSample={activeSample}
-                    />
-                </IdeSlidePanel>
-
+            }
+            sidePanels={
+                <>
                 <IdeSlidePanel
                     open={sidePanel === "learning"}
                     title={SIDE_PANEL_TITLES.learning}
@@ -455,9 +703,10 @@ export function EditorView({
                 >
                     <pre className={`ide-slide-error ${errorClassName}`}>{runError}</pre>
                 </IdeSlidePanel>
-            </div>
 
-            <CommandDictionaryModal entry={modalEntry} onClose={() => setModalEntry(null)} />
-        </div>
+                <CommandDictionaryModal entry={modalEntry} onClose={() => setModalEntry(null)} />
+                </>
+            }
+        />
     );
 }

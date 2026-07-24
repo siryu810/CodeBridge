@@ -88,5 +88,19 @@ test("空の回答", () => {
     assert(result.hints.length > 0, "ヒントがあること");
 });
 
+test("空行だけでは全体がずれない", () => {
+    const user = '表示("こんにちは");\n\n\n整数 x = 1;';
+    const answer = '表示("こんにちは");\n整数 x = 1;';
+    const result = compareJapaneseCode(user, answer);
+    assert(result.isExactMatch, "空行差は無視");
+});
+
+test("末尾空白・タブインデントは無視", () => {
+    const user = '表示("A");  \n\t整数 x = 1;';
+    const answer = '表示("A");\n    整数 x = 1;';
+    const result = compareJapaneseCode(user, answer);
+    assert(result.isExactMatch, "空白差は無視");
+});
+
 console.log(`\n結果: ${passed} 成功, ${failed} 失敗`);
 process.exit(failed > 0 ? 1 : 0);

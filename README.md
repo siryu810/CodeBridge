@@ -220,10 +220,23 @@ http://localhost:3000 で配信されます。
 | **[docs/offline-test.md](docs/offline-test.md)** | Offline 実機確認（Monaco ローカル） |
 | **[docs/final-demo-check.md](docs/final-demo-check.md)** | 代表 4 サンプルの手動チェック |
 | **[docs/release-checklist.md](docs/release-checklist.md)** | GitHub リリース準備 |
+| **[docs/feature-freeze-checklist.md](docs/feature-freeze-checklist.md)** | Feature Freeze チェックリスト |
+| **[docs/practice-system-redesign.md](docs/practice-system-redesign.md)** | 練習採点の再設計レポート |
+| **[docs/terminal-ux-report.md](docs/terminal-ux-report.md)** | IDE 実行コンソール UX |
+| **[docs/bottom-panel-simplification.md](docs/bottom-panel-simplification.md)** | 下部パネル整理（実行結果 / 入力） |
+| **[docs/ide-layout-unification.md](docs/ide-layout-unification.md)** | IDE レイアウト統一 |
+| **[docs/manual-qa-guide.md](docs/manual-qa-guide.md)** | 手動 QA 手順 |
+| **[docs/known-limitations.md](docs/known-limitations.md)** | 既知の制限 |
 
 ---
 
 ## 提出前確認
+
+```powershell
+npm run freeze:check
+```
+
+Feature Freeze 用のまとめて検査です（`check` / `final:check` / build / `/health` / チェックリスト集計）。手動項目の残りは Warning のみで失敗にはしません。
 
 ```powershell
 npm run final:check
@@ -231,7 +244,7 @@ npm run final:check
 
 `check`・ビルド・CDN 検査・サンプル／ロードマップ検証・docs／README リンク確認をまとめて実行します。
 
-オフライン確認・代表サンプル確認は上記 docs のチェックリストに従って手動で行ってください。
+オフライン確認・代表サンプル確認は [manual-qa-guide.md](docs/manual-qa-guide.md) と各 docs のチェックリストに従って手動で行ってください。
 
 ---
 

@@ -14,6 +14,7 @@ export function JapaneseEditor({
     showLineNumbers = true,
     fontSize,
     path,
+    editorApiRef,
 }) {
     const monacoLanguage =
         language === "c" || language === "c2jp" ? "c" : CODEBRIDGE_JP_LANGUAGE_ID;
@@ -28,6 +29,7 @@ export function JapaneseEditor({
             showLineNumbers={showLineNumbers}
             fontSize={fontSize}
             path={path ?? `codebridge-main.${monacoLanguage === "c" ? "c" : "cbjp"}`}
+            editorApiRef={editorApiRef}
             options={{
                 // placeholder は Monaco 非標準のため aria に近いヒントのみ
                 ariaLabel: placeholder || "コードエディタ",

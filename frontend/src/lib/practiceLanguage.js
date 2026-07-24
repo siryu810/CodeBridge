@@ -118,7 +118,7 @@ export function findMissingCommands(expectedCommands, code, language) {
 }
 
 /**
- * 言語に応じた模範解答コードを返す
+ * 言語に応じた参考コードを返す
  * @param {{ jpCode?: string, cCode?: string }} sample
  * @param {PracticeLanguage} language
  */

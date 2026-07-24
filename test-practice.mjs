@@ -1,12 +1,19 @@
-// CodeBridge 練習モード（日本語 / C 両対応）テスト — node test-practice.mjs
+// CodeBridge 練習モード（テストケース採点）テスト — node test-practice.mjs
 
-import { evaluatePractice } from "./frontend/src/lib/practice.js";
+import {
+    evaluatePractice,
+    gradePracticeSubmission,
+    resolvePracticeTestCases,
+    explainPracticeRunError,
+} from "./frontend/src/lib/practice.js";
+import { matchExpectedOutput, normalizeDigits } from "./frontend/src/lib/outputMatch.js";
 import {
     detectPracticeLanguage,
     findMissingCommands,
     getAnswerCodeForLanguage,
 } from "./frontend/src/lib/practiceLanguage.js";
-import { comparePracticeCode } from "./frontend/src/lib/codeDiff.js";
+import { comparePracticeCode, compareCodeLines } from "./frontend/src/lib/codeDiff.js";
+import { CODEBRIDGE_SAMPLES } from "./shared/samples.js";
 
 let passed = 0;
 let failed = 0;
@@ -32,6 +39,14 @@ const helloPractice = {
     hints: [],
     expectedCommands: ["表示"],
     expectedOutputIncludes: ["こんにちは"],
+    outputPolicy: "flexible",
+    testCases: [
+        {
+            label: "基本",
+            stdin: "",
+            expectedOutput: { includes: ["こんにちは"] },
+        },
+    ],
 };
 
 const sampleHello = {
@@ -39,9 +54,10 @@ const sampleHello = {
     jpCode: '表示("こんにちは");',
     cCode: `#include <stdio.h>\nint main(void) {\n    printf("こんにちは\\n");\n    return 0;\n}`,
     practice: helloPractice,
+    stdinExamples: [{ stdin: "", expectStatus: "success" }],
 };
 
-console.log("=== 練習モード二言語テスト ===\n");
+console.log("=== 練習モード二言語・採点テスト ===\n");
 
 test("回答言語の自動判定（日本語）", () => {
     assert(detectPracticeLanguage('表示("こんにちは");') === "japanese", "japanese");
@@ -58,7 +74,7 @@ test("回答言語の自動判定（unknown）", () => {
     assert(detectPracticeLanguage("") === "unknown", "empty");
 });
 
-test("日本語コードで正解", () => {
+test("日本語コードで正解（単一実行評価）", () => {
     const result = evaluatePractice({
         code: '表示("こんにちは");',
         practice: helloPractice,
@@ -67,10 +83,10 @@ test("日本語コードで正解", () => {
     });
     assert(result.level === "success", "success");
     assert(result.language === "japanese", "lang");
-    assert(result.message.includes("日本語コードで正解"), result.message);
+    assert(result.message.includes("正しく動作"), result.message);
 });
 
-test("C言語コードで正解", () => {
+test("C言語コードで正解（単一実行評価）", () => {
     const result = evaluatePractice({
         code: 'printf("こんにちは\\n");',
         practice: helloPractice,
@@ -79,33 +95,16 @@ test("C言語コードで正解", () => {
     });
     assert(result.level === "success", "success");
     assert(result.language === "c", "lang");
-    assert(result.message.includes("C言語コードで正解"), result.message);
     assert(findMissingCommands(["表示"], 'printf("x");', "c").length === 0, "printf maps 表示");
 });
 
-test("日本語コードの実行失敗", () => {
-    const result = evaluatePractice({
-        code: '表示("こんにちは");',
-        practice: helloPractice,
-        language: "japanese",
-        runResult: { status: "compile_error", output: "" },
-    });
-    assert(result.level === "run", "run level");
-    assert(!result.runnable, "not runnable");
+test("コンパイル失敗の説明が日本語", () => {
+    const msg = explainPracticeRunError("compile_error", "japanese");
+    assert(msg.includes("コンパイルエラー"), msg);
+    assert(msg.includes("よくある原因"), msg);
 });
 
-test("C言語コードのコンパイル失敗", () => {
-    const result = evaluatePractice({
-        code: "printf(",
-        practice: helloPractice,
-        language: "c",
-        runResult: { status: "compile_error", output: "" },
-    });
-    assert(result.level === "run", "run");
-    assert(result.message.includes("C言語"), result.message);
-});
-
-test("出力不一致", () => {
+test("出力不一致（単一実行）", () => {
     const result = evaluatePractice({
         code: '表示("hello");',
         practice: helloPractice,
@@ -116,16 +115,95 @@ test("出力不一致", () => {
     assert(!result.outputOk, "outputOk false");
 });
 
-test("出力は正しいが命令不足 → 別の書き方", () => {
-    const result = evaluatePractice({
-        code: "puts(\"こんにちは\");",
+test("flexible は全角数字を許容", () => {
+    const match = matchExpectedOutput("３つ目\n", { includes: ["3つ目"] }, "flexible");
+    assert(match.ok, "flexible should accept fullwidth digits");
+    assert(normalizeDigits("３") === "3", "normalize");
+});
+
+test("strict は全角数字を許容しない", () => {
+    const match = matchExpectedOutput("３つ目\n", { includes: ["3つ目"] }, "strict");
+    assert(!match.ok, "strict should reject fullwidth");
+});
+
+test("提出採点 9件中7件 → 78点", () => {
+    const practice = {
+        ...helloPractice,
+        testCases: Array.from({ length: 9 }, (_, i) => ({
+            label: `ケース${i + 1}`,
+            stdin: "",
+            expectedOutput: { includes: ["OK"] },
+        })),
+    };
+    const caseResults = practice.testCases.map((testCase, i) => ({
+        testCase,
+        status: "success",
+        output: i < 7 ? "OK\n" : "NG\n",
+    }));
+    const grade = gradePracticeSubmission({
+        code: '表示("OK");',
+        sample: { ...sampleHello, practice },
+        practice,
+        language: "japanese",
+        caseResults,
+    });
+    assert(grade.passedCount === 7, `passed ${grade.passedCount}`);
+    assert(grade.totalCount === 9, "total 9");
+    assert(grade.score === 78, `score ${grade.score}`);
+    assert(!grade.cleared, "not cleared");
+});
+
+test("提出採点 全合格で100点", () => {
+    const cases = resolvePracticeTestCases(sampleHello);
+    const caseResults = cases.map((testCase) => ({
+        testCase,
+        status: "success",
+        output: "こんにちは\n",
+    }));
+    const grade = gradePracticeSubmission({
+        code: '表示("こんにちは");',
+        sample: sampleHello,
+        practice: helloPractice,
+        language: "japanese",
+        caseResults,
+    });
+    assert(grade.score === 100, `score ${grade.score}`);
+    assert(grade.cleared, "cleared");
+    assert(grade.compileOk && grade.runOk && grade.outputOk, "checks");
+    assert(grade.requirementsOk, "requirements");
+});
+
+test("必須要件不足でもテスト全通ならクリア（別の書き方）", () => {
+    const grade = gradePracticeSubmission({
+        code: 'puts("こんにちは");',
+        sample: sampleHello,
         practice: helloPractice,
         language: "c",
-        runResult: { status: "success", output: "こんにちは\n" },
+        caseResults: [
+            {
+                testCase: helloPractice.testCases[0],
+                status: "success",
+                output: "こんにちは\n",
+            },
+        ],
     });
-    assert(result.level === "success", "still success");
-    assert(result.alternateStyle === true, "alternateStyle");
-    assert(result.message.includes("別の書き方"), result.message);
+    assert(grade.cleared, "cleared by tests");
+    assert(grade.alternateStyle, "alternate");
+    assert(!grade.requirementsOk, "requirements soft fail");
+});
+
+test("空行の違いでは差分にならない", () => {
+    const user = '表示("A");\n\n整数 x = 1;';
+    const answer = '表示("A");\n整数 x = 1;';
+    const result = compareCodeLines(user, answer);
+    assert(result.isExactMatch, "blank lines ignored");
+});
+
+test("インデントの違いでは差分にならない", () => {
+    const user = 'もし(xが0と等しい){\n表示("A");\n}';
+    const answer = 'もし(xが0と等しい){\n    表示("A");\n}';
+    const result = compareCodeLines(user, answer);
+    assert(result.isExactMatch, "indent ignored");
 });
 
 test("日本語回答は jpCode と比較", () => {
@@ -146,6 +224,25 @@ test("C言語回答は cCode と比較", () => {
 test("getAnswerCodeForLanguage", () => {
     assert(getAnswerCodeForLanguage(sampleHello, "japanese").includes("表示"), "jp");
     assert(getAnswerCodeForLanguage(sampleHello, "c").includes("printf"), "c");
+});
+
+test("全サンプルにテストケースを解決できる", () => {
+    for (const sample of CODEBRIDGE_SAMPLES) {
+        if (!sample.practice) continue;
+        const cases = resolvePracticeTestCases(sample);
+        assert(cases.length > 0, `${sample.id} has cases`);
+        for (const tc of cases) {
+            assert(typeof tc.stdin === "string", `${sample.id} stdin`);
+            assert(tc.expectedOutput, `${sample.id} expected`);
+        }
+    }
+});
+
+test("じゃんけんは複数テストケース", () => {
+    const janken = CODEBRIDGE_SAMPLES.find((s) => s.id === "janken");
+    assert(janken?.practice, "janken practice");
+    const cases = resolvePracticeTestCases(janken);
+    assert(cases.length >= 9, `janken cases ${cases.length}`);
 });
 
 console.log(`\n結果: ${passed} 成功, ${failed} 失敗`);

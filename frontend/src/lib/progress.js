@@ -7,7 +7,14 @@ const PROGRESS_STORAGE_KEY = "codebridge-progress-v1";
 const PROGRESS_VERSION = 1;
 const PROGRESS_CHANGE_EVENT = "codebridge-progress-change";
 
-/** @typedef {{ completed: boolean, attempts: number, lastPlayed: string|null }} SampleProgressEntry */
+/**
+ * @typedef {{
+ *   completed: boolean,
+ *   attempts: number,
+ *   lastPlayed: string|null,
+ *   bestScore: number
+ * }} SampleProgressEntry
+ */
 
 /**
  * @typedef {object} LearningProgressStore
@@ -36,12 +43,13 @@ export function createEmptyProgress() {
 
 function sanitizeEntry(raw) {
     if (!raw || typeof raw !== "object") {
-        return { completed: false, attempts: 0, lastPlayed: null };
+        return { completed: false, attempts: 0, lastPlayed: null, bestScore: 0 };
     }
     return {
         completed: Boolean(raw.completed),
         attempts: Math.max(0, Number(raw.attempts) || 0),
         lastPlayed: typeof raw.lastPlayed === "string" ? raw.lastPlayed : null,
+        bestScore: Math.max(0, Math.min(100, Number(raw.bestScore) || 0)),
     };
 }
 
@@ -121,21 +129,31 @@ export function recordSamplePlayed(sampleId) {
 }
 
 /**
- * 練習の実行結果を記録
+ * 練習の提出結果を記録（実行では呼ばない）
  * @param {string} sampleId
  * @param {boolean} cleared
+ * @param {number} [score]
  */
-export function recordPracticeAttempt(sampleId, cleared) {
+export function recordPracticeAttempt(sampleId, cleared, score = 0) {
     if (!sampleId) {
-        return { attempts: 0, completed: false, isFirstClear: false, isRetry: false };
+        return {
+            attempts: 0,
+            completed: false,
+            isFirstClear: false,
+            isRetry: false,
+            bestScore: 0,
+            score: 0,
+        };
     }
 
     const store = loadProgress();
     const entry = getSampleProgress(store, sampleId);
     const wasCompleted = entry.completed;
+    const numericScore = Math.max(0, Math.min(100, Number(score) || 0));
 
     entry.attempts += 1;
     entry.lastPlayed = todayDateString();
+    entry.bestScore = Math.max(entry.bestScore || 0, numericScore);
     if (cleared) entry.completed = true;
 
     store.samples[sampleId] = entry;
@@ -147,7 +165,34 @@ export function recordPracticeAttempt(sampleId, cleared) {
         completed: entry.completed,
         isFirstClear: cleared && !wasCompleted,
         isRetry: cleared && wasCompleted,
+        bestScore: entry.bestScore,
+        score: numericScore,
     };
+}
+
+/**
+ * 参考コードを見た記録（提出回数には含めない）
+ * meta.extensions.referenceViews[sampleId] = { count, lastViewed }
+ * @param {string} sampleId
+ */
+export function recordReferenceViewed(sampleId) {
+    if (!sampleId) return;
+    const store = loadProgress();
+    const ext = store.meta.extensions && typeof store.meta.extensions === "object"
+        ? store.meta.extensions
+        : {};
+    const views =
+        ext.referenceViews && typeof ext.referenceViews === "object"
+            ? { ...ext.referenceViews }
+            : {};
+    const prev = views[sampleId] && typeof views[sampleId] === "object" ? views[sampleId] : {};
+    views[sampleId] = {
+        count: Math.max(0, Number(prev.count) || 0) + 1,
+        lastViewed: todayDateString(),
+    };
+    store.meta.extensions = { ...ext, referenceViews: views };
+    saveProgress(store);
+    return views[sampleId];
 }
 
 export function resetProgress() {

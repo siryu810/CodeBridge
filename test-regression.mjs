@@ -188,7 +188,16 @@ check("進捗統計を計算できる", () => {
 check("コード比較モジュールが存在する", () => {
     assertIncludes(read("frontend/src/lib/codeDiff.js"), "compareJapaneseCode", "compareJapaneseCode");
     assertIncludes(read("frontend/src/components/CodeDiffViewer.jsx"), "CodeCompareModal", "modal");
-    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "模範解答と比較", "practice compare");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "参考コードとの違い", "practice compare");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "提出して採点", "practice submit");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "見ながら練習", "guided mode");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "見ないで挑戦", "blind mode");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "参考コードを見る", "reference toggle");
+    assertIncludes(read("frontend/src/components/PracticeReferenceDrawer.jsx"), "参考コード", "reference drawer");
+    assertIncludes(read("frontend/src/components/PracticePanel.jsx"), "practice-panel--focus", "focus layout");
+    assertIncludes(read("frontend/src/components/IdeLayout.jsx"), "practiceHost", "practice host slot");
+    assertIncludes(read("frontend/src/lib/practice.js"), "gradePracticeSubmission", "grade submission");
+    assertIncludes(read("frontend/src/lib/progress.js"), "recordReferenceViewed", "reference view log");
 });
 
 check("学習ロードマップUIが存在する", () => {
@@ -250,19 +259,31 @@ check("エディタがモード別コードを保持する", () => {
 });
 
 check("IDE 固定レイアウトが React に存在する", () => {
-    assertIncludes(read("frontend/src/components/EditorView.jsx"), "ide-shell", "IDE シェル");
-    assertIncludes(read("frontend/src/components/EditorView.jsx"), "ide-bottom", "下部コンソール");
+    assertIncludes(read("frontend/src/components/EditorView.jsx"), "IdeLayout", "共通 IdeLayout");
+    assertIncludes(read("frontend/src/components/EditorView.jsx"), "IdeBottomPanel", "下部パネル");
+    assertIncludes(read("frontend/src/components/IdeLayout.jsx"), "ide-shell", "IDE シェル");
+    assertIncludes(read("frontend/src/components/IdeBottomPanel.jsx"), "実行結果", "実行結果タブ");
+    assertIncludes(read("frontend/src/components/IdeBottomPanel.jsx"), 'label: "入力"', "入力タブ");
+    if (read("frontend/src/components/IdeBottomPanel.jsx").includes("Problems")) {
+        throw new Error("Problems タブは削除済みであること");
+    }
+    if (fs.existsSync(path.join(root, "frontend/src/components/RunResultPanel.jsx"))) {
+        throw new Error("旧 RunResultPanel は削除済みであること");
+    }
+    if (fs.existsSync(path.join(root, "frontend/src/components/RuntimeInput.jsx"))) {
+        throw new Error("旧 RuntimeInput は削除済みであること");
+    }
     assertIncludes(read("frontend/src/components/IdeSidePanel.jsx"), "ide-rail", "サイドレール");
     assertIncludes(read("frontend/src/components/EditorView.jsx"), "codeToRun", "実行コード分岐");
     assertIncludes(read("frontend/src/components/IdeWorkspaceSplit.jsx"), "ide-splitter", "リサイズ");
     assertIncludes(read("frontend/src/hooks/useIdeLayout.js"), "IDE_LAYOUT_PRESETS", "レイアウトプリセット");
+    assertIncludes(read("frontend/src/hooks/useBottomPanel.js"), "codebridge-bottom-panel-v1", "高さ永続化");
     const css = read("frontend/src/App.css");
     assertIncludes(css, "ide-workspace", "ワークスペース");
     assertIncludes(css, "100dvh", "100dvh 固定");
-    assertIncludes(css, "console-panel", "コンソールパネル");
-    assertIncludes(css, "runtime-input-panel", "実行時入力パネル");
+    assertIncludes(css, "ide-bottom-panel", "Bottom Panel");
+    assertIncludes(css, "ide-terminal-body", "実行結果本体");
     assertIncludes(css, "flex: 1 1 auto", "ワークスペース伸縮");
-    assertIncludes(css, "flex: 0 0 auto", "下部パネル自然配置");
 });
 
 check("Monaco エディタが React に存在する", () => {

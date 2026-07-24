@@ -100,6 +100,7 @@ function MonacoTextareaFallback({
  * @param {number} [props.fontSize]
  * @param {boolean} [props.showLineNumbers]
  * @param {import("@monaco-editor/react").EditorProps["options"]} [props.options]
+ * @param {import("react").MutableRefObject<{ revealLine: (line: number) => void, focus: () => void }|null>} [props.editorApiRef]
  */
 export function CodeBridgeMonaco({
     value,
@@ -112,6 +113,7 @@ export function CodeBridgeMonaco({
     fontSize = 15,
     showLineNumbers = true,
     options = {},
+    editorApiRef,
 }) {
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
@@ -161,9 +163,29 @@ export function CodeBridgeMonaco({
             monacoRef.current = monacoInstance;
             ensureCodebridgeJpLanguage(monacoInstance);
             applyMarkers(monacoInstance, editor, markers);
+            if (editorApiRef) {
+                editorApiRef.current = {
+                    revealLine(line) {
+                        const n = Number(line);
+                        if (!Number.isFinite(n) || n < 1) return;
+                        editor.revealLineInCenter(n);
+                        editor.setPosition({ lineNumber: n, column: 1 });
+                        editor.focus();
+                    },
+                    focus() {
+                        editor.focus();
+                    },
+                };
+            }
         },
-        [applyMarkers, markers]
+        [applyMarkers, markers, editorApiRef]
     );
+
+    useEffect(() => {
+        return () => {
+            if (editorApiRef) editorApiRef.current = null;
+        };
+    }, [editorApiRef]);
 
     useEffect(() => {
         applyMarkers(monacoRef.current, editorRef.current, markers);
@@ -228,7 +250,6 @@ export function CodeBridgeMonaco({
                         domReadOnly: readOnly,
                         ...options,
                     }}
-                    // loader 失敗時に永遠に Loading にならないよう、例外は Boundary で捕捉
                 />
             </div>
         </MonacoErrorBoundary>

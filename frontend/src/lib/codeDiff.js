@@ -1,6 +1,6 @@
 /**
- * 練習モード向けコード比較（同言語同士）
- * 日本語回答 ↔ jpCode / C言語回答 ↔ cCode
+ * 練習モード向けコード比較（学習用・採点には使わない）
+ * 空白・空行・インデントの違いは「違い」にしない
  */
 
 import { detectPracticeLanguage, getAnswerCodeForLanguage } from "./practiceLanguage.js";
@@ -27,15 +27,35 @@ import { detectPracticeLanguage, getAnswerCodeForLanguage } from "./practiceLang
 function splitLines(text) {
     return String(text ?? "")
         .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
         .split("\n");
 }
 
-function normalizeLine(line) {
-    return String(line ?? "").trim();
+/** 表示用: 行末空白のみ除去 */
+function displayLine(line) {
+    return String(line ?? "").replace(/[ \t]+$/g, "");
+}
+
+/**
+ * 比較用キー: 空行無視・インデント/タブ/連続空白を同一視
+ * （文字列リテラル内のスペースも潰すため完全ではないが、学習比較用途）
+ */
+export function normalizeLineForCompare(line) {
+    return String(line ?? "")
+        .replace(/\t/g, " ")
+        .replace(/[ \t]+/g, " ")
+        .trim();
 }
 
 function isBlankLine(line) {
-    return normalizeLine(line).length === 0;
+    return normalizeLineForCompare(line).length === 0;
+}
+
+/** 空行を除いた行配列（元テキストは保持） */
+function significantLines(text) {
+    return splitLines(text)
+        .map(displayLine)
+        .filter((line) => !isBlankLine(line));
 }
 
 /**
@@ -43,10 +63,12 @@ function isBlankLine(line) {
  * @param {string} answerLine
  */
 function describeLineDifference(userLine, answerLine) {
-    const user = normalizeLine(userLine);
-    const answer = normalizeLine(answerLine);
+    const user = normalizeLineForCompare(userLine);
+    const answer = normalizeLineForCompare(answerLine);
 
-    if (user === answer) return "内容は同じですが、空白などが異なる可能性があります。";
+    if (user === answer) {
+        return "内容は同じです（空白の違いは無視しています）。";
+    }
 
     if (user + ";" === answer) {
         return "文末の ; が不足している可能性があります。";
@@ -80,7 +102,7 @@ function describeLineDifference(userLine, answerLine) {
         return "整数を扱うには 整数 変数名; で変数を宣言します。";
     }
 
-    return "模範解答と異なる行です。内容を確認してください。";
+    return "参考コードと異なる行です。動作していればそのままでも大丈夫です。";
 }
 
 /** @param {DiffRowType} type */
@@ -100,7 +122,7 @@ function labelForType(type) {
 }
 
 /**
- * LCS ベースの行差分
+ * LCS ベースの行差分（空行除外後）
  * @param {string[]} userLines
  * @param {string[]} answerLines
  */
@@ -111,7 +133,10 @@ function buildLineOps(userLines, answerLines) {
 
     for (let i = 1; i <= n; i++) {
         for (let j = 1; j <= m; j++) {
-            if (normalizeLine(userLines[i - 1]) === normalizeLine(answerLines[j - 1])) {
+            if (
+                normalizeLineForCompare(userLines[i - 1]) ===
+                normalizeLineForCompare(answerLines[j - 1])
+            ) {
                 dp[i][j] = dp[i - 1][j - 1] + 1;
             } else {
                 dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
@@ -128,7 +153,8 @@ function buildLineOps(userLines, answerLines) {
         if (
             i > 0 &&
             j > 0 &&
-            normalizeLine(userLines[i - 1]) === normalizeLine(answerLines[j - 1])
+            normalizeLineForCompare(userLines[i - 1]) ===
+                normalizeLineForCompare(answerLines[j - 1])
         ) {
             raw.unshift({
                 kind: "same",
@@ -161,12 +187,7 @@ function buildLineOps(userLines, answerLines) {
     for (let k = 0; k < raw.length; k++) {
         const cur = raw[k];
         const next = raw[k + 1];
-        if (
-            cur.kind === "extra" &&
-            next?.kind === "missing" &&
-            !isBlankLine(cur.userLine ?? "") &&
-            !isBlankLine(next.answerLine ?? "")
-        ) {
+        if (cur.kind === "extra" && next?.kind === "missing") {
             merged.push({
                 kind: "changed",
                 userLine: cur.userLine,
@@ -177,12 +198,7 @@ function buildLineOps(userLines, answerLines) {
             k++;
             continue;
         }
-        if (
-            cur.kind === "missing" &&
-            next?.kind === "extra" &&
-            !isBlankLine(cur.answerLine ?? "") &&
-            !isBlankLine(next.userLine ?? "")
-        ) {
+        if (cur.kind === "missing" && next?.kind === "extra") {
             merged.push({
                 kind: "changed",
                 userLine: next.userLine,
@@ -225,7 +241,7 @@ function opsToRows(ops) {
                 lineNumber: displayLine,
                 userLine: "",
                 answerLine: op.answerLine ?? "",
-                message: `${displayLine}行目：模範解答に必要な行が足りません。`,
+                message: `${displayLine}行目付近：参考コードにはこの行があります（必須ではありません）。`,
                 label: labelForType("missing"),
             });
             continue;
@@ -238,7 +254,7 @@ function opsToRows(ops) {
                 lineNumber: displayLine,
                 userLine: op.userLine ?? "",
                 answerLine: "",
-                message: `${displayLine}行目：模範解答にはない行が追加されています。`,
+                message: `${displayLine}行目付近：参考コードにはない行です（動作していれば問題ありません）。`,
                 label: labelForType("extra"),
             });
             continue;
@@ -253,7 +269,7 @@ function opsToRows(ops) {
                 lineNumber: displayLine,
                 userLine,
                 answerLine,
-                message: `${displayLine}行目：${describeLineDifference(userLine, answerLine)}`,
+                message: `${displayLine}行目付近：${describeLineDifference(userLine, answerLine)}`,
                 label: labelForType("changed"),
             });
         }
@@ -273,38 +289,47 @@ function collectHints(rows, userCode, answerCode) {
     const user = String(userCode ?? "").trim();
     const answer = String(answerCode ?? "").trim();
 
+    add("この比較は学習用です。書き方が違っても、正しく動作すれば正解です。");
+
     if (!user) {
-        add("まずは1行から書き始めましょう。模範解答の流れを参考にしてください。");
+        add("まずは1行から書き始めましょう。参考コードの流れを参考にしてください。");
         return hints;
     }
 
     if (!answer) {
-        add("模範解答が設定されていません。");
+        add("参考コードが設定されていません。");
         return hints;
     }
 
     for (const row of rows) {
         if (row.type === "changed" && row.message) {
-            const msg = row.message.replace(/^\d+行目：/, "");
-            if (msg && !msg.includes("模範解答と異なる行")) add(msg);
+            const msg = row.message.replace(/^\d+行目付近：/, "");
+            if (
+                msg &&
+                !msg.includes("参考コードと異なる行") &&
+                !msg.includes("空白の違い")
+            ) {
+                add(msg);
+            }
         }
     }
 
     const hasMissingSemicolon = rows.some(
         (r) =>
             r.type === "changed" &&
-            normalizeLine(r.userLine) + ";" === normalizeLine(r.answerLine)
+            normalizeLineForCompare(r.userLine) + ";" ===
+                normalizeLineForCompare(r.answerLine)
     );
     if (hasMissingSemicolon) {
         add("文の最後には ; が必要です。");
     }
 
     if (rows.some((r) => r.type === "missing")) {
-        add("足りない行を追加するか、処理の順番を見直してください。");
+        add("足りない処理がないか、アルゴリズムの流れを見直してみましょう。");
     }
 
     if (rows.some((r) => r.type === "extra")) {
-        add("不要な行がないか確認してください。");
+        add("余分な処理があっても、テストに通っていれば問題ありません。");
     }
 
     if (/表示\s*\([^"]*"/.test(answer) || answer.includes('表示("')) {
@@ -323,8 +348,8 @@ function collectHints(rows, userCode, answerCode) {
         add("繰り返しには { } で囲んだ処理を書きます。");
     }
 
-    if (hints.length === 0 && rows.some((r) => r.type !== "same")) {
-        add("模範解答と見比べながら、1行ずつ直してみましょう。");
+    if (hints.length <= 1 && rows.some((r) => r.type !== "same")) {
+        add("参考コードと見比べながら、処理の流れを確認してみましょう。");
     }
 
     return hints;
@@ -349,13 +374,13 @@ export function compareCodeLines(userCode, answerCode) {
     }
 
     if (!userTrimmed) {
-        const answerLines = splitLines(answerCode).filter((l) => !isBlankLine(l));
+        const answerLines = significantLines(answerCode);
         const rows = answerLines.map((line, index) => ({
             type: /** @type {const} */ ("missing"),
             lineNumber: index + 1,
             userLine: "",
             answerLine: line,
-            message: `${index + 1}行目：この行が不足しています。`,
+            message: `${index + 1}行目：この行が参考コードにあります。`,
             label: labelForType("missing"),
         }));
         return {
@@ -367,41 +392,37 @@ export function compareCodeLines(userCode, answerCode) {
     }
 
     if (!answerTrimmed) {
-        const userLines = splitLines(userCode).filter((l) => !isBlankLine(l));
+        const userLines = significantLines(userCode);
         const rows = userLines.map((line, index) => ({
             type: /** @type {const} */ ("extra"),
             lineNumber: index + 1,
             userLine: line,
             answerLine: "",
-            message: `${index + 1}行目：模範解答にない行です。`,
+            message: `${index + 1}行目：参考コードにない行です。`,
             label: labelForType("extra"),
         }));
         return {
             rows,
-            hints: ["模範解答が設定されていません。"],
+            hints: ["参考コードが設定されていません。"],
             isExactMatch: false,
             language: "unknown",
         };
     }
 
-    const userLines = splitLines(userCode);
-    const answerLines = splitLines(answerCode);
-
-    while (userLines.length > 0 && isBlankLine(userLines[userLines.length - 1])) {
-        userLines.pop();
-    }
-    while (answerLines.length > 0 && isBlankLine(answerLines[answerLines.length - 1])) {
-        answerLines.pop();
-    }
+    const userLines = significantLines(userCode);
+    const answerLines = significantLines(answerCode);
 
     const ops = buildLineOps(userLines, answerLines);
     const rows = opsToRows(ops);
-    const isExactMatch = rows.length > 0 && rows.every((r) => r.type === "same");
+    const isExactMatch = rows.length === 0 || rows.every((r) => r.type === "same");
 
     return {
         rows,
         hints: isExactMatch
-            ? ["模範解答と一致しています。よくできました！"]
+            ? [
+                  "この比較は学習用です。書き方が違っても、正しく動作すれば正解です。",
+                  "参考コードと同じ流れになっています。",
+              ]
             : collectHints(rows, userCode, answerCode),
         isExactMatch,
         language: "unknown",
@@ -414,7 +435,7 @@ export function compareJapaneseCode(userCode, answerCode) {
 }
 
 /**
- * 回答言語に合った模範解答と比較する
+ * 回答言語に合った参考コードと比較する（採点外）
  * @param {string} userCode
  * @param {{ jpCode?: string, cCode?: string }} sample
  * @param {"japanese"|"c"|"unknown"|"auto"} [language]

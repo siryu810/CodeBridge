@@ -48,11 +48,13 @@ export function CodeDiffViewer({ userCode, answerCode, result: resultProp }) {
     return (
         <div className="code-diff-viewer">
             {result.isExactMatch && result.rows.length === 0 && (
-                <p className="code-diff-match-all">模範解答と一致しています。</p>
+                <p className="code-diff-match-all">参考コードと同じ流れです。</p>
             )}
 
             {result.isExactMatch && result.rows.length > 0 && (
-                <p className="code-diff-match-all">すべての行が一致しています。</p>
+                <p className="code-diff-match-all">
+                    処理の流れは参考コードと一致しています（空白の違いは無視しています）。
+                </p>
             )}
 
             <div className="code-diff-rows">
@@ -118,7 +120,7 @@ export function CodeCompareModal({
             >
                 <header className="code-diff-modal-header">
                     <h3 id="code-diff-modal-title" className="code-diff-modal-title">
-                        模範解答と比較
+                        参考コードとの違い
                         {sampleTitle ? ` — ${sampleTitle}` : ""}
                         {!sampleTitle && language === "c" ? " — C言語" : ""}
                         {!sampleTitle && language === "japanese" ? " — 日本語" : ""}
@@ -133,6 +135,10 @@ export function CodeCompareModal({
                     </button>
                 </header>
                 <div className="code-diff-modal-body">
+                    <p className="code-diff-learning-note">
+                        正しく動けば書き方は人それぞれです。
+                        この比較は参考コードとの違いを学ぶためのものです。
+                    </p>
                     <CodeDiffViewer userCode={userCode} answerCode={answerCode} />
                 </div>
             </div>

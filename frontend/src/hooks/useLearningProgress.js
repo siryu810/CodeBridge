@@ -35,8 +35,8 @@ export function useLearningProgress() {
         setStore(loadProgress());
     }, []);
 
-    const markPracticeAttempt = useCallback((sampleId, cleared) => {
-        const result = recordPracticeAttempt(sampleId, cleared);
+    const markPracticeAttempt = useCallback((sampleId, cleared, score = 0) => {
+        const result = recordPracticeAttempt(sampleId, cleared, score);
         setStore(loadProgress());
         return result;
     }, []);
