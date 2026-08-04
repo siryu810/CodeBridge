@@ -1,7 +1,7 @@
 {
   "name": "codebridge",
   "version": "0.9.0-rc.1",
-  "description": "CodeBridge 学習IDE — 日本語でC言語を学ぶ",
+  "description": "日本語でC言語を学ぶ初学者向け学習IDE。双方向変換・gcc実行・練習採点・学習ロードマップ対応。",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -15,9 +15,20 @@
     "freeze:check": "node scripts/feature-freeze-check.mjs",
     "validate-samples": "node scripts/validate-samples.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "education",
+    "c-language",
+    "japanese",
+    "learning",
+    "ide",
+    "react",
+    "vite",
+    "monaco-editor",
+    "programming-education",
+    "u-22"
+  ],
+  "author": "CodeBridge Authors",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",

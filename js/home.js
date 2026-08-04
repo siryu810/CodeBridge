@@ -6,9 +6,6 @@
 // （将来: .c / .cb ファイルの読み込み・保存）
 // =========================================================
 
-console.log("home.js loaded");
-console.log("samples:", window.CODEBRIDGE_SAMPLES);
-
 const RECENT_STORAGE_KEY = "codebridge-recent-v1";
 const RECENT_MAX = 5;
 

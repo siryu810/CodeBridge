@@ -633,7 +633,7 @@ app.post("/run", async (req, res) => {
     const code = typeof req.body?.code === "string" ? req.body.code : "";
     const stdin = typeof req.body?.stdin === "string" ? req.body.stdin : "";
 
-    console.log("[/run] code length:", code.length, "stdin:", JSON.stringify(stdin));
+    console.log("[/run] code length:", code.length, "stdin length:", stdin.length);
 
     if (!code.trim()) {
         return res.status(400).json(buildEmptyCodeResponse());

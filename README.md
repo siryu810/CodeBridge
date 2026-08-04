@@ -2,91 +2,42 @@
 
 日本語で C 言語を学ぶ、初学者向け学習 IDE。
 
-**Version: `0.9.0-rc.1`**（U-22 提出向け Release Candidate）
+**Version: `0.9.0-rc.1`**（U-22 / Public Release Candidate）  
+**License: [MIT](LICENSE)**
 
 ---
 
 ## 目次
 
-- [概要](#概要)
-- [スクリーンショット](#スクリーンショット)
-- [解決したい課題](#解決したい課題)
-- [主な機能](#主な機能)
-- [使用例](#使用例)
-- [サンプル教材](#サンプル教材)
-- [使い方](#使い方)
-- [デモ・発表](#デモ発表)
-- [提出前確認](#提出前確認)
+- [CodeBridge とは](#codebridge-とは)
+- [特徴](#特徴)
+- [画面紹介](#画面紹介)
+- [使用技術](#使用技術)
+- [セットアップ](#セットアップ)
+- [ディレクトリ構成](#ディレクトリ構成)
+- [開発背景](#開発背景)
+- [今後の予定](#今後の予定)
 - [品質確認](#品質確認)
-- [技術構成](#技術構成)
-- [今後の展望](#今後の展望)
+- [GitHub 公開設定](#github-公開設定)
 - [ライセンス](#ライセンス)
 
 ---
 
-## 概要
+## CodeBridge とは
 
 CodeBridge は、**日本語で C 言語を学ぶための初学者向け学習 IDE** です。
 
-日本語でコードを書いて C 言語として実行できるだけでなく、C 言語コードを日本語に変換して読むこともできます。
+- 日本語でコードを書いて、C 言語として実行できる
+- C 言語コードを日本語に変換して読める
+- サンプル教材・練習問題・進捗・学習ロードマップで「何をどの順で学ぶか」が分かる
 
 目的は、英語や記号への苦手意識で止まらず、**アルゴリズムの流れを理解しながら C 言語を学べる**ようにすることです。
 
-CodeBridge は「翻訳ツール」ではなく、**考え方を学ぶための学習環境**として設計されています。サンプル教材・練習問題・進捗管理・学習ロードマップを通して、何をどの順番で学べばよいかが分かるようになっています。
+CodeBridge は単なる翻訳ツールではなく、**正しく動くコードを書く力**を育てる学習環境として設計しています。参考コードは唯一の正解ではなく、書き方の一例として扱います。
 
 ---
 
-## スクリーンショット
-
-> 画像の撮り方・配置は **[docs/images/README.md](docs/images/README.md)** を参照してください。  
-> 撮影後、下のコメントを外して表示できます。フォルダ: **[docs/images/](docs/images/)**
-
-### ホーム画面
-
-<!-- ![CodeBridge ホーム画面](docs/images/home.png) -->
-`docs/images/home.png` — 学習進捗・次に学ぶ・ロードマップ
-
-### IDE 画面（日本語 → C 言語）
-
-<!-- ![IDE 日本語モード](docs/images/editor-jp-to-c.png) -->
-`docs/images/editor-jp-to-c.png` — 日本語コード・変換結果・コンソール
-
-### 練習モード
-
-<!-- ![練習モード](docs/images/practice-mode.png) -->
-`docs/images/practice-mode.png` — 問題・ヒント・答え合わせ
-
-### コード比較
-
-<!-- ![コード比較](docs/images/code-compare.png) -->
-`docs/images/code-compare.png` — 模範解答との差分
-
-### 学習ロードマップ
-
-<!-- ![ロードマップ](docs/images/learning-roadmap.png) -->
-`docs/images/learning-roadmap.png` — 章一覧と進捗
-
-### デモ GIF（任意）
-
-<!-- ![操作デモ](docs/images/demo.gif) -->
-`docs/images/demo.gif` — 変換 → 実行 → 練習の流れ
-
----
-
-## 解決したい課題
-
-C 言語を初めて学ぶ人には、次のようなつまずきがよくあります。
-
-- C 言語初学者は、英単語や記号でつまずきやすい
-- 授業や AI が生成したコードを見ても意味が分からないことがある
-- アルゴリズムを理解する前に、構文で止まってしまう
-- 基本情報技術者試験 B 方式のような読解問題に苦手意識を持ちやすい
-
-CodeBridge は、これらの課題に対して **日本語という身近な言葉** でコードを書き、読み、実行し、間違いを直す体験を提供します。
-
----
-
-## 主な機能
+## 特徴
 
 | 機能 | 説明 |
 |------|------|
@@ -94,22 +45,18 @@ CodeBridge は、これらの課題に対して **日本語という身近な言
 | C 言語 → 日本語 変換 | 既存の C コードを日本語表記で読み解く |
 | C 言語として実行 | ブラウザから gcc でコンパイル・実行（要 gcc） |
 | 実行時入力 | `scanf` / `入力()` に対応した標準入力 |
-| コンソール表示 | 実行結果を見やすく表示 |
-| 日本語エラー表示 | コンパイルエラーを初学者向けに説明 |
-| Monaco エディタ | 構文ハイライト・括弧補完・検索（**ローカルバンドル・オフライン可**） |
+| Bottom Panel | 実行結果と入力をタブで整理 |
+| 日本語エラー表示 | コンパイル・実行エラーを初学者向けに説明 |
+| Monaco エディタ | 構文ハイライト・括弧補完（ローカルバンドル・オフライン可） |
 | 命令辞書 | 使える日本語命令の一覧と意味 |
 | 学習モード | アルゴリズムの流れをステップで確認 |
-| 練習モード | 日本語・C言語いずれでも回答可 |
-| 模範解答とのコード比較 | 同言語どうしで差分を確認 |
-| 学習進捗 | クリア状況・カテゴリ別の進捗を記録（localStorage） |
+| 練習モード | 見ながら練習 / 見ないで挑戦、テストケース採点 |
+| 参考コードとの比較 | 学習用の差分表示（採点基準ではない） |
+| 学習進捗 | クリア状況を localStorage に記録 |
 | 学習ロードマップ | 9 章構成の学習コース |
 | サンプル教材 24 件 | 表示から乱数まで段階的に学べる題材 |
 
----
-
-## 使用例
-
-### 表示
+### 使用例
 
 **日本語コード：**
 
@@ -123,47 +70,58 @@ CodeBridge は、これらの課題に対して **日本語という身近な言
 printf("こんにちは\n");
 ```
 
-### 条件分岐
+---
 
-**日本語コード：**
+## 画面紹介
 
-```
-もし(scoreが60以上){
-    表示("合格");
-}
-```
+> 画像の撮り方は **[docs/images/README.md](docs/images/README.md)** を参照してください。  
+> 撮影後、下の HTML コメントを外すと README 上に表示されます。フォルダ: **[docs/images/](docs/images/)**
 
-**C 言語変換結果：**
+### ホーム画面
 
-```c
-if(score >= 60){
-    printf("合格\n");
-}
-```
+<!-- ![CodeBridge ホーム画面](docs/images/home.png) -->
+`docs/images/home.png` — 学習進捗・次に学ぶ・ロードマップ
+
+### IDE 画面（日本語 → C 言語）
+
+<!-- ![IDE 日本語モード](docs/images/editor-jp-to-c.png) -->
+`docs/images/editor-jp-to-c.png` — 日本語コード・変換結果・実行パネル
+
+### 練習モード
+
+<!-- ![練習モード](docs/images/practice-mode.png) -->
+`docs/images/practice-mode.png` — 問題・ヒント・実行・提出・採点
+
+### 参考コードとの比較
+
+<!-- ![コード比較](docs/images/code-compare.png) -->
+`docs/images/code-compare.png` — 参考コードとの差分（学習用）
+
+### 学習ロードマップ
+
+<!-- ![ロードマップ](docs/images/learning-roadmap.png) -->
+`docs/images/learning-roadmap.png` — 章一覧と進捗
+
+### デモ GIF（任意）
+
+<!-- ![操作デモ](docs/images/demo.gif) -->
+`docs/images/demo.gif` — 変換 → 実行 → 練習の流れ
 
 ---
 
-## サンプル教材
+## 使用技術
 
-現在、次のカテゴリで **全 24 件** のサンプルを用意しています。
-
-| カテゴリ | 内容の例 |
-|----------|----------|
-| 表示 | 文字列の出力 |
-| 入力 | キーボードから値を読み込む |
-| 計算 | 合計・平均・BMI・四則演算 |
-| 条件分岐 | 偶数奇数判定・成績判定 |
-| 繰り返し | for / while・九九・三角形 |
-| 配列 | 合計・最大値・最小値・平均 |
-| 関数 | 足し算・最大値を求める関数 |
-| 文字列 | 名前の表示・文字数 |
-| 乱数 | おみくじ・じゃんけん |
-
-ホーム画面の「学習ロードマップ」から、章ごとに順番に学習できます。
+| 分野 | 技術 |
+|------|------|
+| フロントエンド | React、Vite、Monaco Editor（ローカルバンドル） |
+| バックエンド | Node.js、Express |
+| 実行環境 | gcc |
+| データ保存 | localStorage（クラウド / Firebase は未使用） |
+| 公開・管理 | GitHub |
 
 ---
 
-## 使い方
+## セットアップ
 
 ### 必要な環境
 
@@ -172,14 +130,14 @@ if(score >= 60){
 
 ### 1. インストール
 
-```powershell
+```bash
 npm install
 npm install --prefix frontend
 ```
 
 ### 2. 開発サーバー起動
 
-```powershell
+```bash
 npm run dev
 ```
 
@@ -191,19 +149,19 @@ npm run dev
 
 1. ホームからサンプルを選ぶか、「新規作成」で空のエディタを開く
 2. 日本語でコードを書く（または C 言語モードで読み解く）
-3. 「実行」で結果をコンソールに表示
-4. サンプルでは「練習」パネルで問題に挑戦し、進捗が記録される
+3. 「実行」で結果を Bottom Panel に表示
+4. サンプルでは「練習」で問題に挑戦し、進捗が記録される
 
 個別起動：
 
-```powershell
+```bash
 npm run dev:server   # 実行サーバーのみ
 npm run dev:client   # フロントエンドのみ
 ```
 
 ### 本番ビルド
 
-```powershell
+```bash
 npm run build
 npm start
 ```
@@ -212,79 +170,7 @@ http://localhost:3000 で配信されます。
 
 ---
 
-## デモ・発表
-
-| ドキュメント | 内容 |
-|--------------|------|
-| **[docs/demo.md](docs/demo.md)** | 約 5 分の発表デモ手順 |
-| **[docs/offline-test.md](docs/offline-test.md)** | Offline 実機確認（Monaco ローカル） |
-| **[docs/final-demo-check.md](docs/final-demo-check.md)** | 代表 4 サンプルの手動チェック |
-| **[docs/release-checklist.md](docs/release-checklist.md)** | GitHub リリース準備 |
-| **[docs/feature-freeze-checklist.md](docs/feature-freeze-checklist.md)** | Feature Freeze チェックリスト |
-| **[docs/practice-system-redesign.md](docs/practice-system-redesign.md)** | 練習採点の再設計レポート |
-| **[docs/terminal-ux-report.md](docs/terminal-ux-report.md)** | IDE 実行コンソール UX |
-| **[docs/bottom-panel-simplification.md](docs/bottom-panel-simplification.md)** | 下部パネル整理（実行結果 / 入力） |
-| **[docs/ide-layout-unification.md](docs/ide-layout-unification.md)** | IDE レイアウト統一 |
-| **[docs/manual-qa-guide.md](docs/manual-qa-guide.md)** | 手動 QA 手順 |
-| **[docs/known-limitations.md](docs/known-limitations.md)** | 既知の制限 |
-
----
-
-## 提出前確認
-
-```powershell
-npm run freeze:check
-```
-
-Feature Freeze 用のまとめて検査です（`check` / `final:check` / build / `/health` / チェックリスト集計）。手動項目の残りは Warning のみで失敗にはしません。
-
-```powershell
-npm run final:check
-```
-
-`check`・ビルド・CDN 検査・サンプル／ロードマップ検証・docs／README リンク確認をまとめて実行します。
-
-オフライン確認・代表サンプル確認は [manual-qa-guide.md](docs/manual-qa-guide.md) と各 docs のチェックリストに従って手動で行ってください。
-
----
-
-## 品質確認
-
-```powershell
-npm run check
-```
-
-| 検証 | 内容 |
-|------|------|
-| 変換テスト | 日本語 ↔ C 言語の変換 |
-| 回帰テスト | 主要機能・全サンプル変換・UI 存在確認 |
-| 実行テスト | 実行 API の基本動作 |
-| コード比較テスト | 模範解答との差分表示 |
-| ロードマップ検証 | 章定義・sampleId の整合性 |
-| サンプル検証 | 全 24 件のコンパイル・実行・期待出力 |
-| Monaco オフライン検査 | CDN URL 非依存の静的確認 |
-| 構文チェック | 主要ソースファイル |
-| ビルド | フロントエンド本番ビルド |
-
-**Failed: 0 / Warnings: 0** を確認してください。
-
-```powershell
-npm test   # テストのみ
-```
-
----
-
-## 技術構成
-
-| 分野 | 技術 |
-|------|------|
-| フロントエンド | React、Vite、Monaco Editor（ローカルバンドル） |
-| バックエンド | Node.js、Express |
-| 実行環境 | gcc |
-| データ保存 | localStorage |
-| 公開・管理 | GitHub |
-
-### ディレクトリ構成
+## ディレクトリ構成
 
 ```
 CodeBridge/
@@ -292,25 +178,125 @@ CodeBridge/
   shared/            変換エンジン・サンプル・ロードマップ
   server.js          Express + gcc 実行 API
   scripts/           開発・検証スクリプト
-  docs/              デモ・オフライン確認・提出チェック
+  docs/              デモ・QA・提出チェック・画像ガイド
+  LICENSE            MIT License
+  README.md
 ```
 
 サンプル追加は [docs/sample-template.md](docs/sample-template.md) を参照してください。
 
+関連ドキュメント：
+
+| ドキュメント | 内容 |
+|--------------|------|
+| [docs/demo.md](docs/demo.md) | 約 5 分の発表デモ手順 |
+| [docs/manual-qa-guide.md](docs/manual-qa-guide.md) | 手動 QA |
+| [docs/known-limitations.md](docs/known-limitations.md) | 既知の制限 |
+| [docs/release-checklist.md](docs/release-checklist.md) | GitHub リリース準備 |
+
 ---
 
-## 今後の展望
+## 開発背景
+
+C 言語を初めて学ぶ人には、次のようなつまずきがよくあります。
+
+- 英単語や記号で止まってしまう
+- 授業や AI が生成したコードの意味が分からない
+- アルゴリズムより先に構文で挫折する
+- 「何から学べばよいか」が分からない
+
+CodeBridge は、これらの課題に対して **日本語という身近な言葉** でコードを書き、読み、実行し、間違いを直す体験を提供します。U-22 プログラミング・コンテスト作品およびポートフォリオとしても公開できるよう設計しています。
+
+---
+
+## 今後の予定
 
 - より多くの C 言語構文への対応
-- 学習履歴の強化
-- 苦手分析
-- おすすめ問題
-- GitHub 連携
-- 他言語対応（Python / Java など）
-- 数学アプリとの連携
+- 学習履歴の強化・苦手分析
+- おすすめ問題の提案
+- スクリーンショット・デモ GIF の README 掲載
+- （将来）クラウド進捗同期などの検討
+
+---
+
+## 品質確認
+
+```bash
+npm test          # テスト一式
+npm run check     # テスト + 構文 + ビルド
+npm run final:check
+```
+
+| 検証 | 内容 |
+|------|------|
+| 変換テスト | 日本語 ↔ C 言語の変換 |
+| 回帰テスト | 主要機能・全サンプル変換・UI 存在確認 |
+| 実行テスト | 実行 API の基本動作 |
+| コード比較テスト | 参考コードとの差分表示 |
+| ロードマップ検証 | 章定義・sampleId の整合性 |
+| サンプル検証 | 全 24 件のコンパイル・実行・期待出力 |
+| Monaco オフライン検査 | CDN URL 非依存の静的確認 |
+
+既知の制限は [docs/known-limitations.md](docs/known-limitations.md) を参照してください。
+
+---
+
+## GitHub 公開設定
+
+リポジトリ設定にそのまま貼り付けられる候補です。
+
+### Description（候補）
+
+```
+日本語でC言語を学ぶ初学者向け学習IDE。双方向変換・gcc実行・練習採点・学習ロードマップ対応。
+```
+
+### Topics（候補）
+
+```
+education
+c-language
+japanese
+learning
+ide
+react
+vite
+monaco-editor
+programming-education
+express
+u-22
+mit-license
+```
+
+### Release 案（`v0.9.0-rc.1`）
+
+**タイトル:** `CodeBridge 0.9.0-rc.1 — U-22 Release Candidate`
+
+**本文案:**
+
+```markdown
+## Summary
+- 日本語 ↔ C 言語の双方向変換と gcc 実行
+- 練習モード（見ながら練習 / 見ないで挑戦、テストケース採点）
+- 参考コードとの比較（学習用）
+- 学習ロードマップ・進捗（localStorage）
+- Monaco エディタ（オフライン可）
+
+## Setup
+1. `npm install` / `npm install --prefix frontend`
+2. `npm run dev` → http://localhost:5173
+3. 実行には gcc が必要です
+
+## Notes
+- 進捗はブラウザの localStorage に保存されます
+- 既知の制限: docs/known-limitations.md
+- デモ手順: docs/demo.md
+```
+
+詳細手順は [docs/release-checklist.md](docs/release-checklist.md) を参照してください。
 
 ---
 
 ## ライセンス
 
-ISC
+[MIT License](LICENSE)
