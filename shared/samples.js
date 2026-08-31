@@ -1351,19 +1351,17 @@ attachPracticeToSamples(CODEBRIDGE_SAMPLES);
 
 const HOME_FEATURED_SAMPLE_IDS = ["janken", "bmi", "grade", "omikuji"];
 
-const NEW_PROJECT_JP_CODE = `表示("Hello, CodeBridge!");
-
-`;
+const NEW_PROJECT_JP_CODE = "";
 
 const NEW_PROJECT_C_CODE = `#include <stdio.h>
 
 int main(void) {
-    setbuf(stdout, NULL);
 
-    printf("Hello, CodeBridge!\\n");
 
-    return 0;
 }`;
+
+/** 新規作成（Cモード）で main 内の入力開始位置（1-based） */
+const NEW_PROJECT_C_CURSOR = { line: 4, column: 5 };
 
 /** @deprecated NEW_PROJECT_JP_CODE を使用 */
 const NEW_PROJECT_TEMPLATE = NEW_PROJECT_JP_CODE;
@@ -1380,6 +1378,7 @@ export {
     HOME_FEATURED_SAMPLE_IDS,
     NEW_PROJECT_JP_CODE,
     NEW_PROJECT_C_CODE,
+    NEW_PROJECT_C_CURSOR,
     NEW_PROJECT_TEMPLATE,
     getSampleEditorCode,
 };

@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import CodeBridgeJp2c from "./shared/jp2c.js";
 import CodeBridgeC2jp from "./shared/c2jp.js";
-import { CODEBRIDGE_SAMPLES, HOME_FEATURED_SAMPLE_IDS, NEW_PROJECT_TEMPLATE } from "./shared/samples.js";
+import { CODEBRIDGE_SAMPLES, HOME_FEATURED_SAMPLE_IDS, NEW_PROJECT_JP_CODE, NEW_PROJECT_C_CODE } from "./shared/samples.js";
 import { computeProgressStats, createEmptyProgress } from "./frontend/src/lib/progress.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -50,9 +50,29 @@ check("ホーム注目サンプル ID が有効", () => {
     }
 });
 
-check("新規作成テンプレートが変換できる", () => {
-    const result = CodeBridgeJp2c.convertJapaneseToC(NEW_PROJECT_TEMPLATE);
+check("新規作成の初期コードが空の基本構造", () => {
+    if (NEW_PROJECT_JP_CODE.includes("Hello") || NEW_PROJECT_JP_CODE.includes("表示")) {
+        throw new Error("NEW_PROJECT_JP_CODE にサンプル処理が含まれています");
+    }
+    if (NEW_PROJECT_C_CODE.includes("printf")) {
+        throw new Error("NEW_PROJECT_C_CODE に printf が含まれています");
+    }
+    if (NEW_PROJECT_C_CODE.includes("return 0")) {
+        throw new Error("NEW_PROJECT_C_CODE に return 0 が含まれています");
+    }
+    if (!NEW_PROJECT_C_CODE.includes("#include <stdio.h>")) {
+        throw new Error("NEW_PROJECT_C_CODE に stdio がありません");
+    }
+    if (!NEW_PROJECT_C_CODE.includes("int main(void)")) {
+        throw new Error("NEW_PROJECT_C_CODE に main がありません");
+    }
+});
+
+check("新規作成用コードが変換・実行できる", () => {
+    const jp = '表示("Hello, CodeBridge!");';
+    const result = CodeBridgeJp2c.convertJapaneseToC(jp);
     if (!result.program.includes("printf")) throw new Error("変換結果が不正");
+    assertIncludes(result.body, 'printf("Hello, CodeBridge!\\n");', "printf 変換");
 });
 
 check("C言語 → 日本語モードが React に存在する", () => {
@@ -66,9 +86,23 @@ check("実行ボタンが React に存在する", () => {
     assertIncludes(read("frontend/src/components/EditorView.jsx"), "▶ 実行", "実行ボタン");
 });
 
-check("新規作成がホームに存在する", () => {
-    assertIncludes(read("frontend/src/components/HomeView.jsx"), "新規作成", "新規作成");
-    assertIncludes(read("frontend/src/components/HomeView.jsx"), "home-primary-btn", "新規ボタン");
+check("新規作成が入口ホームに存在する", () => {
+    assertIncludes(read("frontend/src/components/EntryHomeView.jsx"), "新しく作る", "新しく作る");
+    assertIncludes(read("frontend/src/App.jsx"), "handleNewProject", "新規作成ハンドラ");
+});
+
+check("入口ホームが存在する", () => {
+    assertIncludes(read("frontend/src/components/EntryHomeView.jsx"), "日本語で、プログラムを書く。", "入口コピー");
+    assertIncludes(read("frontend/src/components/EntryHomeView.jsx"), "新しく作る", "新しく作る");
+    assertIncludes(read("frontend/src/components/EntryHomeView.jsx"), "学習する", "学習する");
+    assertIncludes(read("frontend/src/App.jsx"), 'view === "entry"', "entry view");
+    assertIncludes(read("frontend/src/App.jsx"), 'view === "learn"', "learn view");
+    assertIncludes(read("frontend/src/components/LearnSubNav.jsx"), "← ホーム", "学習から入口へ戻る");
+    assertIncludes(read("frontend/src/components/LearnHomeView.jsx"), "続きから学習", "学習ホーム");
+    assertIncludes(read("frontend/src/App.jsx"), "learn-roadmap", "roadmap view");
+    assertIncludes(read("frontend/src/App.jsx"), "learn-samples", "samples view");
+    assertIncludes(read("frontend/src/App.jsx"), "learn-progress", "progress view");
+    assertIncludes(read("frontend/src/App.jsx"), 'view === "settings"', "settings view");
 });
 
 check("サンプル一覧コンポーネントが存在する", () => {
@@ -162,8 +196,9 @@ check("学習進捗モジュールが存在する", () => {
     assertIncludes(read("frontend/src/lib/progress.js"), "codebridge-progress-v1", "storage key");
     assertIncludes(read("frontend/src/lib/progress.js"), "computeProgressStats", "stats");
     assertIncludes(read("frontend/src/components/ProgressSummary.jsx"), "学習進捗", "summary UI");
-    assertIncludes(read("frontend/src/components/HomeView.jsx"), "続きから学習", "continue card");
-    assertIncludes(read("frontend/src/components/HomeView.jsx"), "学習進捗をリセット", "reset");
+    assertIncludes(read("frontend/src/components/LearnHomeView.jsx"), "続きから学習", "continue card");
+    assertIncludes(read("frontend/src/components/SettingsView.jsx"), "学習進捗をリセット", "reset");
+    assertIncludes(read("frontend/src/components/LearnProgressPage.jsx"), "CategoryProgress", "category progress page");
 });
 
 check("進捗統計を計算できる", () => {
@@ -205,7 +240,9 @@ check("学習ロードマップUIが存在する", () => {
     assertIncludes(read("frontend/src/components/LearningRoadmap.jsx"), "学習ロードマップ", "roadmap UI");
     assertIncludes(read("frontend/src/components/LearningRoadmap.jsx"), "すべて開放", "unlock all");
     assertIncludes(read("frontend/src/components/NextLearnCard.jsx"), "次に学ぶ", "next learn");
-    assertIncludes(read("frontend/src/components/HomeView.jsx"), "すべての章を開放する", "unlock setting");
+    assertIncludes(read("frontend/src/components/SettingsView.jsx"), "すべての章を開放する", "unlock setting");
+    assertIncludes(read("frontend/src/components/LearnRoadmapPage.jsx"), "LearningRoadmap", "roadmap page");
+    assertIncludes(read("frontend/src/components/LearnSamplesPage.jsx"), "おすすめサンプル", "samples page");
 });
 
 check("全サンプルの jpCode が日本語→C変換できる", () => {

@@ -15,7 +15,7 @@ import { useIdeLayout } from "../hooks/useIdeLayout.js";
 import {
     loadBottomPanelState,
 } from "../hooks/useBottomPanel.js";
-import { CODEBRIDGE_SAMPLES } from "../data/samples.js";
+import { CODEBRIDGE_SAMPLES, NEW_PROJECT_C_CODE, NEW_PROJECT_C_CURSOR } from "../data/samples.js";
 import {
     convertJapaneseSource,
     convertCSource,
@@ -59,6 +59,14 @@ function loadSavedStdin() {
     }
 }
 
+function hasNewProjectCStructure(code) {
+    return (
+        typeof code === "string" &&
+        code.includes("#include <stdio.h>") &&
+        code.includes("int main(void)")
+    );
+}
+
 export function EditorView({
     jpCode,
     cCode,
@@ -68,10 +76,11 @@ export function EditorView({
     onBackHome,
     projectTitle = "",
     sampleId = null,
+    isNewProject = false,
     serverConnected = false,
     serverChecked = false,
 }) {
-    const [editorMode, setEditorMode] = useState("jp2c");
+    const [editorMode, setEditorMode] = useState(() => (isNewProject ? "c2jp" : "jp2c"));
     const [stdin, setStdin] = useState(() => loadSavedStdin());
     const [runError, setRunError] = useState(DEFAULT_ERROR);
     const [errorPanelMode, setErrorPanelMode] = useState("error");
@@ -95,6 +104,7 @@ export function EditorView({
     );
 
     const editorApiRef = useRef(null);
+    const newProjectFocusDoneRef = useRef(false);
     const stdinInputRef = useRef(null);
     const { stats } = useLearningProgress();
 
@@ -132,6 +142,25 @@ export function EditorView({
         },
         [hidePreview, showPreview]
     );
+
+    const editorPathBase = sampleId ?? projectTitle ?? "new";
+
+    const ensureNewProjectCCode = useCallback(() => {
+        if (!isNewProject || sampleId || hasNewProjectCStructure(cCode)) return;
+        onCCodeChange(NEW_PROJECT_C_CODE);
+    }, [isNewProject, sampleId, cCode, onCCodeChange]);
+
+    const handleEditorModeChange = useCallback(
+        (mode) => {
+            setEditorMode(mode);
+            if (mode === "c2jp") ensureNewProjectCCode();
+        },
+        [ensureNewProjectCCode]
+    );
+
+    useEffect(() => {
+        ensureNewProjectCCode();
+    }, [ensureNewProjectCCode]);
 
     const isBlindPractice = Boolean(sampleId) && practiceVisibility === "blind";
 
@@ -206,6 +235,27 @@ export function EditorView({
         setBottomOpen(true);
         setBottomCollapsed(false);
     }, [sampleId, projectTitle]);
+
+    useEffect(() => {
+        newProjectFocusDoneRef.current = false;
+    }, [projectTitle, sampleId, isNewProject]);
+
+    useEffect(() => {
+        if (!isNewProject || newProjectFocusDoneRef.current) return undefined;
+
+        const line =
+            editorMode === "c2jp" ? NEW_PROJECT_C_CURSOR.line : 1;
+        const column =
+            editorMode === "c2jp" ? NEW_PROJECT_C_CURSOR.column : 1;
+
+        const id = window.setTimeout(() => {
+            if (!editorApiRef.current?.setCursorPosition) return;
+            editorApiRef.current.setCursorPosition(line, column);
+            newProjectFocusDoneRef.current = true;
+        }, 200);
+
+        return () => window.clearTimeout(id);
+    }, [isNewProject, editorMode]);
 
     useEffect(() => {
         if (sampleId) setSidePanel("practice");
@@ -465,7 +515,7 @@ export function EditorView({
                                 name="editorMode"
                                 value="jp2c"
                                 checked={editorMode === "jp2c"}
-                                onChange={() => setEditorMode("jp2c")}
+                                onChange={() => handleEditorModeChange("jp2c")}
                             />
                             日本語 → C言語
                         </label>
@@ -475,7 +525,7 @@ export function EditorView({
                                 name="editorMode"
                                 value="c2jp"
                                 checked={editorMode === "c2jp"}
-                                onChange={() => setEditorMode("c2jp")}
+                                onChange={() => handleEditorModeChange("c2jp")}
                             />
                             C言語 → 日本語
                         </label>
@@ -570,8 +620,8 @@ export function EditorView({
                             editorApiRef={editorApiRef}
                             path={
                                 editorMode === "jp2c"
-                                    ? "codebridge-editor.cbjp"
-                                    : "codebridge-editor.c"
+                                    ? `codebridge-editor-${editorPathBase}.cbjp`
+                                    : `codebridge-editor-${editorPathBase}.c`
                             }
                         />
                     }

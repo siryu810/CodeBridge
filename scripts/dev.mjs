@@ -6,12 +6,12 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const children = [];
 
-function spawnDev(command, args, label) {
+function spawnDev(command, args, label, extraEnv = {}) {
     const child = spawn(command, args, {
         cwd: root,
         stdio: "inherit",
         shell: true,
-        env: process.env,
+        env: { ...process.env, ...extraEnv },
     });
 
     child.on("exit", (code, signal) => {
@@ -29,12 +29,16 @@ function spawnDev(command, args, label) {
     return child;
 }
 
+const apiPort = String(process.env.CODEBRIDGE_API_PORT || process.env.PORT || "3000");
+
 console.log("[dev] 実行サーバーと Vite を起動します…");
-console.log("[dev]   API: http://localhost:3000");
+console.log(`[dev]   API: http://localhost:${apiPort}`);
 console.log("[dev]   UI:  http://localhost:5173\n");
 
-spawnDev("node", ["server.js"], "server");
-spawnDev("npm", ["run", "dev", "--prefix", "frontend"], "vite");
+spawnDev("node", ["server.js"], "server", { PORT: apiPort });
+spawnDev("npm", ["run", "dev", "--prefix", "frontend"], "vite", {
+    CODEBRIDGE_API_PORT: apiPort,
+});
 
 function shutdown() {
     for (const proc of children) {

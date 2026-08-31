@@ -679,7 +679,10 @@ if (fs.existsSync(FRONTEND_DIST)) {
 }
 
 if (require.main === module) {
-    app.listen(PORT, async () => {
+    const server = app.listen(PORT, async () => {
+        // Express/Node は EADDRINUSE 時にもコールバックが走る場合があるため、実アドレスを確認する
+        if (!server.address()) return;
+
         console.log(`CodeBridge 学習IDE サーバー: http://localhost:${PORT}`);
         if (fs.existsSync(FRONTEND_DIST)) {
             console.log("  UI: React ビルド (frontend/dist)");
@@ -688,6 +691,26 @@ if (require.main === module) {
         }
         const gccStatus = await isGccReady();
         console.log(gccStatus.available ? `  gcc: ${gccStatus.version}` : "  gcc: 未検出");
+    });
+
+    server.on("error", (err) => {
+        if (err.code === "EADDRINUSE") {
+            console.error(
+                `ポート ${PORT} はすでに使用中です。CodeBridge 実行サーバーを起動できません。`
+            );
+            console.error(
+                "  ・ポートを使っている他アプリ（例: Remotion Studio）を終了する"
+            );
+            console.error(
+                `  ・または別ポートで起動（PowerShell）:\n` +
+                    `      $env:PORT=3001; npm run dev:server\n` +
+                    `      $env:CODEBRIDGE_API_PORT=3001; npm run dev:client\n` +
+                    `    （まとめて） $env:PORT=3001; npm run dev`
+            );
+        } else {
+            console.error("サーバー起動エラー:", err.message ?? err);
+        }
+        process.exit(1);
     });
 }
 

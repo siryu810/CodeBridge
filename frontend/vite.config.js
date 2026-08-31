@@ -5,6 +5,9 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/** 実行サーバーのポート（server.js と揃える。Vite 自身の PORT とは分離） */
+const API_PORT = Number(process.env.CODEBRIDGE_API_PORT || 3000);
+
 export default defineConfig({
     plugins: [react()],
     resolve: {
@@ -35,8 +38,8 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
-            "/run": "http://localhost:3000",
-            "/health": "http://localhost:3000",
+            "/run": `http://localhost:${API_PORT}`,
+            "/health": `http://localhost:${API_PORT}`,
         },
     },
 });

@@ -165,6 +165,15 @@ export function CodeBridgeMonaco({
             applyMarkers(monacoInstance, editor, markers);
             if (editorApiRef) {
                 editorApiRef.current = {
+                    setCursorPosition(line, column = 1) {
+                        const lineNumber = Number(line);
+                        const columnNumber = Number(column);
+                        if (!Number.isFinite(lineNumber) || lineNumber < 1) return;
+                        if (!Number.isFinite(columnNumber) || columnNumber < 1) return;
+                        editor.setPosition({ lineNumber, column: columnNumber });
+                        editor.revealLineInCenter(lineNumber);
+                        editor.focus();
+                    },
                     revealLine(line) {
                         const n = Number(line);
                         if (!Number.isFinite(n) || n < 1) return;

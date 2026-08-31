@@ -3,19 +3,37 @@ function progressBarBlocks(percent) {
     return "█".repeat(filled) + "░".repeat(10 - filled);
 }
 
-export function LearningRoadmap({ chapters, onOpenSample, unlockAll, onUnlockAllChange }) {
+export function LearningRoadmap({
+    chapters,
+    onOpenSample,
+    unlockAll,
+    onUnlockAllChange,
+    onGoSettings,
+}) {
+    const showUnlockCheckbox = typeof onUnlockAllChange === "function";
+
     return (
         <section className="learning-roadmap">
             <div className="learning-roadmap-head">
                 <h3 className="learning-roadmap-title">学習ロードマップ</h3>
-                <label className="roadmap-unlock-all">
-                    <input
-                        type="checkbox"
-                        checked={unlockAll}
-                        onChange={(e) => onUnlockAllChange?.(e.target.checked)}
-                    />
-                    すべて開放
-                </label>
+                {showUnlockCheckbox ? (
+                    <label className="roadmap-unlock-all">
+                        <input
+                            type="checkbox"
+                            checked={unlockAll}
+                            onChange={(e) => onUnlockAllChange(e.target.checked)}
+                        />
+                        すべて開放
+                    </label>
+                ) : onGoSettings ? (
+                    <button
+                        type="button"
+                        className="roadmap-settings-link"
+                        onClick={onGoSettings}
+                    >
+                        すべて開放は設定へ
+                    </button>
+                ) : null}
             </div>
             <p className="learning-roadmap-desc">
                 章を順番に進めましょう。前の章をすべてクリアすると次の章が開放されます。
